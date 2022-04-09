@@ -1,1 +1,2 @@
-# DT-demo
+# MHS-MXP-algorithm
+Diploma thesis

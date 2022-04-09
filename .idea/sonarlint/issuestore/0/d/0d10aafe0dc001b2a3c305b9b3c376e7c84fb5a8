@@ -1,0 +1,52 @@
+
+m
+java:S3776"RRefactor this method to reduce its Cognitive Complexity from 62 to the 15 allowed.(á™ò±üÿÿÿÿ
+N	java:S106"9Replace this use of System.out or System.err by a logger.(Æí˜Ø
+L
+java:S2696"6Make the enclosing method "static" or remove this set.(¹ıš
+N	java:S1065"9Replace this use of System.out or System.err by a logger.(Íàòü
+Q
+java:S26968"6Make the enclosing method "static" or remove this set.(¢½Ğ¢ÿÿÿÿÿ
+L
+java:S2696<"6Make the enclosing method "static" or remove this set.(Õâº
+L
+java:S2696@"6Make the enclosing method "static" or remove this set.(êèŠÇ
+N	java:S106C"9Replace this use of System.out or System.err by a logger.(İ×ĞÈ
+L
+java:S2696I"6Make the enclosing method "static" or remove this set.(Â¦°°
+S	java:S106L"9Replace this use of System.out or System.err by a logger.(¸ïâüÿÿÿÿ
+Q
+java:S2696R"6Make the enclosing method "static" or remove this set.(ªŠæîúÿÿÿÿ
+S	java:S106U"9Replace this use of System.out or System.err by a logger.(—½¬Ùÿÿÿÿÿ
+L
+java:S2696p"6Make the enclosing method "static" or remove this set.(Âœä
+N	java:S106r"9Replace this use of System.out or System.err by a logger.(Æ–û½
+Q
+java:S2696w"6Make the enclosing method "static" or remove this set.(£ß§Áùÿÿÿÿ
+N	java:S106y"9Replace this use of System.out or System.err by a logger.(ßäÙí
+L
+java:S2696~"6Make the enclosing method "static" or remove this set.(°üä
+T	java:S106€"9Replace this use of System.out or System.err by a logger.(¥»¼¶ùÿÿÿÿ
+R
+java:S2696…"6Make the enclosing method "static" or remove this set.(´¯®Üøÿÿÿÿ
+T	java:S106‡"9Replace this use of System.out or System.err by a logger.(­—Æúÿÿÿÿÿ
+T	java:S106‹"9Replace this use of System.out or System.err by a logger.(ş‹Ğæüÿÿÿÿ
+T	java:S106"9Replace this use of System.out or System.err by a logger.(Íğ²±ıÿÿÿÿ
+R
+java:S2696”"6Make the enclosing method "static" or remove this set.(À÷ÏŞùÿÿÿÿ
+R
+java:S2696—"6Make the enclosing method "static" or remove this set.(Ò¦Í‚ûÿÿÿÿ
+i	java:S100›"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÙŠîÅûÿÿÿÿ
+T	java:S106"9Replace this use of System.out or System.err by a logger.(€¢ïìúÿÿÿÿ
+i	java:S100£"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(öæéøÿÿÿÿ
+i	java:S100¬"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(µ›üõúÿÿÿÿ
+\
+java:S1192q"FDefine a constant instead of duplicating this literal "false" 4 times.(™ü³
+~
+java:S1192r"hDefine a constant instead of duplicating this literal ", allowed values are 'true' and 'false'" 4 times.(Æ–û½
+e	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Å½ôq
+k	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(çàö’ùÿÿÿÿ
+k	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ÿİ„šıÿÿÿÿ
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(úÍáŸ
+k	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Äİ³úÿÿÿÿ
+l	java:S117¬"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(µ›üõúÿÿÿÿ
