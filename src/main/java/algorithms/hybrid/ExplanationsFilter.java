@@ -8,8 +8,6 @@ import fileLogger.FileLogger;
 import models.Explanation;
 import org.apache.commons.lang3.StringUtils;
 import org.semanticweb.owlapi.model.*;
-import reasoner.ILoader;
-import reasoner.IReasonerManager;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,18 +17,16 @@ public class ExplanationsFilter {
 
     private List<Explanation> minimalExplanations;
     private HybridSolver hybridSolver;
-    private ILoader loader;
-    private IReasonerManager reasonerManager;
     private ICheckRules checkRules;
+    private AbductionManagerImpl abductionManager;
 
-    public ExplanationsFilter(ILoader loader, IReasonerManager reasonerManager, HybridSolver hybridSolver){
+    public ExplanationsFilter(AbductionManagerImpl abductionManager, HybridSolver hybridSolver){
         this.hybridSolver = hybridSolver;
-        this.loader = loader;
-        this.reasonerManager = reasonerManager;
-        this.checkRules = new CheckRules(loader, reasonerManager);
+        this.abductionManager = abductionManager;
+        this.checkRules = new CheckRules(abductionManager);
     }
 
-    public List<Explanation> showExplanations(AbductionManagerImpl abductionManager) throws OWLOntologyStorageException, OWLOntologyCreationException {
+    public List<Explanation> showExplanations() throws OWLOntologyStorageException, OWLOntologyCreationException {
         List<Explanation> filteredExplanations = new ArrayList<>();
         if(abductionManager.MHS_MODE){
             filteredExplanations.addAll(hybridSolver.explanations);
@@ -41,10 +37,10 @@ public class ExplanationsFilter {
         hybridSolver.path.clear();
         minimalExplanations = new LinkedList<>();
 
-        StringBuilder result = showExplanationsAccordingToLength(filteredExplanations, abductionManager);
+        StringBuilder result = showExplanationsAccordingToLength(filteredExplanations);
         FileLogger.appendToFile(FileLogger.HYBRID_LOG_FILE__PREFIX, hybridSolver.currentTimeMillis, result.toString(), abductionManager);
 
-        log_explanations_times(minimalExplanations, abductionManager);
+        log_explanations_times(minimalExplanations);
 
         if(!abductionManager.MHS_MODE){
             StringBuilder resultLevel = showExplanationsAccordingToLevel(new ArrayList<>(minimalExplanations));
@@ -53,7 +49,7 @@ public class ExplanationsFilter {
         return minimalExplanations;
     }
 
-    private StringBuilder showExplanationsAccordingToLength(List<Explanation> filteredExplanations, AbductionManagerImpl abductionManager) throws OWLOntologyCreationException {
+    private StringBuilder showExplanationsAccordingToLength(List<Explanation> filteredExplanations) throws OWLOntologyCreationException {
         StringBuilder result = new StringBuilder();
         int depth = 1;
         while (filteredExplanations.size() > 0) {
@@ -147,7 +143,7 @@ public class ExplanationsFilter {
         return time;
     }
 
-    private void log_explanations_times(List<Explanation> explanations, AbductionManagerImpl abductionManager){
+    private void log_explanations_times(List<Explanation> explanations){
         StringBuilder result = new StringBuilder();
         for (Explanation exp: explanations){
             String line = String.format("%.2f;%s\n", exp.getAcquireTime(), exp);
@@ -157,15 +153,15 @@ public class ExplanationsFilter {
     }
 
     private List<Explanation> getConsistentExplanations() throws OWLOntologyStorageException {
-        loader.getOntologyManager().removeAxiom(hybridSolver.ontology, loader.getNegObservation().getOwlAxiom());
+        abductionManager.getAbducibleContainer().getLoader().getOntologyManager().removeAxiom(hybridSolver.ontology, abductionManager.getAbducibleContainer().getLoader().getNegObservation().getOwlAxiom());
 
         /*pridane kvoli tomu, ze vzdy PRVE vysvetlenie pri pouziti hermitu odignorovalo*/
-        reasonerManager.resetOntology(hybridSolver.ontology.axioms());
+        abductionManager.getReasonerManager().resetOntology(hybridSolver.ontology.axioms());
 
         List<Explanation> filteredExplanations = new ArrayList<>();
         for (Explanation explanation : hybridSolver.explanations) {
             if (isExplanation(explanation)) {
-                if (reasonerManager.isOntologyWithLiteralsConsistent(explanation.getOwlAxioms(), hybridSolver.ontology)) {
+                if (abductionManager.getReasonerManager().isOntologyWithLiteralsConsistent(explanation.getOwlAxioms(), hybridSolver.ontology)) {
                     filteredExplanations.add(explanation);
                 }
             }
@@ -216,7 +212,7 @@ public class ExplanationsFilter {
         return name.contains(DLSyntax.DISPLAY_NEGATION);
     }
 
-    public void showExplanationsWithDepth(Integer depth, boolean timeout, Double time, AbductionManagerImpl abductionManager) {
+    public void showExplanationsWithDepth(Integer depth, boolean timeout, Double time) {
         List<Explanation> currentExplanations = hybridSolver.explanations.stream().filter(explanation -> explanation.getDepth().equals(depth)).collect(Collectors.toList());
         String currentExplanationsFormat = StringUtils.join(currentExplanations, ",");
         String line = String.format("%d;%d;%.2f%s;{%s}\n", depth, currentExplanations.size(), time, timeout ? "-TIMEOUT" : "", currentExplanationsFormat);
@@ -224,7 +220,7 @@ public class ExplanationsFilter {
         FileLogger.appendToFile(FileLogger.HYBRID_PARTIAL_EXPLANATIONS_LOG_FILE__PREFIX, hybridSolver.currentTimeMillis, line, abductionManager);
     }
 
-    public void showExplanationsWithLevel(Integer level, boolean timeout, Double time, AbductionManagerImpl abductionManager){
+    public void showExplanationsWithLevel(Integer level, boolean timeout, Double time){
         List<Explanation> currentExplanations = hybridSolver.explanations.stream().filter(explanation -> explanation.getLevel().equals(level)).collect(Collectors.toList());
         String currentExplanationsFormat = StringUtils.join(currentExplanations, ",");
         String line = String.format("%d;%d;%.2f%s;{%s}\n", level, currentExplanations.size(), time, timeout ? "-TIMEOUT" : "", currentExplanationsFormat);

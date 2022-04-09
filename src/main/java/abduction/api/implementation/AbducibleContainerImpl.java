@@ -3,12 +3,12 @@ package abduction.api.implementation;
 import abductionapi.exception.AxiomAbducibleAssertionException;
 import abductionapi.exception.AxiomAbducibleSymbolException;
 import abductionapi.container.AbducibleContainer;
-import common.Configuration;
+import abductionapi.exception.CommonException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
-import org.semanticweb.owlapi.model.OWLOntology;
 import parser.ArgumentParser;
 import reasoner.ILoader;
 import reasoner.Loader;
@@ -19,11 +19,10 @@ import java.util.Set;
 
 public class AbducibleContainerImpl implements AbducibleContainer {
 
-    private boolean loops = false;
+    private boolean loops = true;
+    //default true, ale zatial iba false
     private boolean roleAssertions = false;
-    private boolean conceptAssertions = false;
-    private boolean complexConcepts = false;
-    private boolean conceptComplements = false;
+    private boolean conceptComplements = true;
 
     private Set<OWLClass> abduciblesConcepts = new HashSet<>();
     private Set<OWLNamedIndividual> abduciblesIndividuals = new HashSet<>();
@@ -40,13 +39,13 @@ public class AbducibleContainerImpl implements AbducibleContainer {
 
         // 1. examples - asi su ok - treba este debuggnut lebo idu trochu aj bez api
         x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3.in";
-//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3_noNeg.in";
+        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3_noNeg.in";
 //        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam_abd.txt";
 //        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/mhs_mod/family.in";
-//        C:\Users\zuz\Documents\UNI\Praca\DEMO\DT-demo\DT-demo\in\mhs_mod\family.in
+////        C:\Users\zuz\Documents\UNI\Praca\DEMO\DT-demo\DT-demo\in\mhs_mod\family.in
 //        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam.txt";
-//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam_2.txt";
-//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/divideSets.in";
+        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam_2.txt";
+        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/divideSets.in";
 
 
         // 2. example
@@ -83,32 +82,12 @@ public class AbducibleContainerImpl implements AbducibleContainer {
     }
 
     @Override
-    public void allowConceptAssertions() {
-        conceptAssertions = true;
-    }
-
-    @Override
-    public void allowConceptAssertions(Boolean allow) {
-        conceptAssertions = allow;
-    }
-
-    @Override
-    public void allowComplexConcepts() {
-        complexConcepts = true;
-    }
-
-    @Override
-    public void allowComplexConcepts(Boolean allow) {
-        complexConcepts = allow;
-    }
-
-    @Override
-    public void allowConceptComplement() {
+    public void allowConceptComplements() {
         conceptComplements = true;
     }
 
     @Override
-    public void allowConceptComplement(Boolean allow) {
+    public void allowConceptComplements(Boolean allow) {
         conceptComplements = allow;
     }
 
@@ -150,17 +129,17 @@ public class AbducibleContainerImpl implements AbducibleContainer {
 
     @Override
     public void addSymbols(List list) throws AxiomAbducibleSymbolException {
-
+        throw new CommonException("This method should not be used.", new NotImplementedException("This method should not be used."));
     }
 
     @Override
     public void addSymbols(Object o) throws AxiomAbducibleSymbolException {
-
+        throw new CommonException("This method should not be used.", new NotImplementedException("This method should not be used."));
     }
 
     @Override
     public void addAssertion(Object o) throws AxiomAbducibleAssertionException {
-
+        throw new CommonException("This method should not be used.", new NotImplementedException("This method should not be used."));
     }
 
     @Override
@@ -177,30 +156,25 @@ public class AbducibleContainerImpl implements AbducibleContainer {
 
     @Override
     public void addAssertions(List list) throws AxiomAbducibleAssertionException {
-
+        throw new CommonException("This method should not be used.", new NotImplementedException("This method should not be used."));
     }
 
     @Override
     public void addAssertions(Object o) throws AxiomAbducibleAssertionException {
-
+        throw new CommonException("This method should not be used.", new NotImplementedException("This method should not be used."));
     }
 
+    @Override
     public boolean areLoopsEnabled() {
         return loops;
     }
 
+    @Override
     public boolean areRoleAssertionsEnabled() {
         return roleAssertions;
     }
 
-    public boolean areConceptAssertionsEnabled() {
-        return conceptAssertions;
-    }
-
-    public boolean areComplexConcepts() {
-        return complexConcepts;
-    }
-
+    @Override
     public boolean areConceptComplementsEnabled() {
         return conceptComplements;
     }

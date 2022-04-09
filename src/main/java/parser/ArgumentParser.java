@@ -132,8 +132,10 @@ public class ArgumentParser {
                     break;
                 case "-n:":
                     if (next.equals("false")) {
-                        abducibleContainer.allowConceptComplement(false);
-                    } else if (!next.equals("true")) {
+                        abducibleContainer.allowConceptComplements(false);
+                    } else if (next.equals("true")) {
+                        abducibleContainer.allowConceptComplements(true);
+                    }else if (!next.equals("true")) {
                         System.err.println("Wrong negation allowed value -n" + next + ", allowed values are 'true' and 'false'");
                     }
                     break;

@@ -1,5 +1,6 @@
 package algorithms.hybrid;
 
+import abduction.api.implementation.AbductionManagerImpl;
 import common.Printer;
 import models.Explanation;
 import openllet.owlapi.OpenlletReasonerFactory;
@@ -16,29 +17,27 @@ import java.util.List;
 
 public class CheckRules implements ICheckRules {
 
-    private ILoader loader;
-    private IReasonerManager reasonerManager;
+    private AbductionManagerImpl abductionManager;
 
-    CheckRules(ILoader loader, IReasonerManager reasonerManager) {
-        this.loader = loader;
-        this.reasonerManager = reasonerManager;
+    CheckRules(AbductionManagerImpl abductionManager) {
+        this.abductionManager = abductionManager;
     }
 
     @Override
     public boolean isConsistent(Explanation explanation) {
-        reasonerManager.removeAxiomFromOntology(loader.getNegObservation().getOwlAxiom());
-        reasonerManager.addAxiomsToOntology(explanation.getOwlAxioms());
-        boolean isConsistent = reasonerManager.isOntologyConsistent();
-        reasonerManager.resetOntology(loader.getOriginalOntology().axioms());
-        reasonerManager.addAxiomToOntology(loader.getNegObservation().getOwlAxiom());
+        abductionManager.getReasonerManager().removeAxiomFromOntology(abductionManager.getAbducibleContainer().getLoader().getNegObservation().getOwlAxiom());
+        abductionManager.getReasonerManager().addAxiomsToOntology(explanation.getOwlAxioms());
+        boolean isConsistent = abductionManager.getReasonerManager().isOntologyConsistent();
+        abductionManager.getReasonerManager().resetOntology(abductionManager.getBackgroundKnowledgeOriginal().axioms());
+        abductionManager.getReasonerManager().addAxiomToOntology(abductionManager.getAbducibleContainer().getLoader().getNegObservation().getOwlAxiom());
         return isConsistent;
     }
 
     @Override
     public boolean isExplanation(Explanation explanation) {
-        reasonerManager.addAxiomsToOntology(explanation.getOwlAxioms());
-        boolean isConsistent = reasonerManager.isOntologyConsistent();
-        reasonerManager.resetOntology(loader.getOriginalOntology().axioms());
+        abductionManager.getReasonerManager().addAxiomsToOntology(explanation.getOwlAxioms());
+        boolean isConsistent = abductionManager.getReasonerManager().isOntologyConsistent();
+        abductionManager.getReasonerManager().resetOntology(abductionManager.getBackgroundKnowledgeOriginal().axioms());
         return !isConsistent;
     }
 
@@ -63,9 +62,9 @@ public class CheckRules implements ICheckRules {
 
         OWLReasoner reasoner = new OpenlletReasonerFactory().createNonBufferingReasoner(ontology);
 
-        if(loader.isMultipleObservationOnInput()){
-            for(OWLAxiom obs : loader.getObservation().getAxiomsInMultipleObservations()){
-                OWLAxiom negObs = AxiomManager.getComplementOfOWLAxiom(loader, obs);
+        if(abductionManager.getAbducibleContainer().getLoader().isMultipleObservationOnInput()){
+            for(OWLAxiom obs : abductionManager.getAbducibleContainer().getLoader().getObservation().getAxiomsInMultipleObservations()){
+                OWLAxiom negObs = AxiomManager.getComplementOfOWLAxiom(abductionManager.getAbducibleContainer().getLoader(), obs);
                 ontologyManager.addAxiom(ontology, negObs);
                 if(!reasoner.isConsistent()){
                     return false;
@@ -74,7 +73,7 @@ public class CheckRules implements ICheckRules {
             }
             return true;
         } else {
-            ontologyManager.addAxiom(ontology, loader.getNegObservation().getOwlAxiom());
+            ontologyManager.addAxiom(ontology, abductionManager.getAbducibleContainer().getLoader().getNegObservation().getOwlAxiom());
             return reasoner.isConsistent();
         }
     }

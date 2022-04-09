@@ -10,17 +10,14 @@ import algorithms.hybrid.HybridSolver;
 import models.Explanation;
 import models.Observation;
 import org.apache.commons.lang3.NotImplementedException;
-import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import reasoner.IReasonerManager;
 import reasoner.ReasonerManager;
 import reasoner.ReasonerType;
 import timer.ThreadTimes;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +30,8 @@ public class AbductionManagerImpl implements AbductionManager {
     private AbducibleContainerImpl abducibleContainer;
     private boolean isMultipleObservationOnInput;
     private IReasonerManager reasonerManager;
-    Monitor monitor;
+    private Monitor monitor;
+
     public static boolean MHS_MODE = false;
     public static Integer DEPTH;
     public static Long TIMEOUT;
@@ -54,7 +52,7 @@ public class AbductionManagerImpl implements AbductionManager {
         return reasonerManager;
     }
 
-    public void setReasonerManager() {
+    private void setReasonerManager() {
         this.reasonerManager = new ReasonerManager(abducibleContainer.getLoader());
     }
 
@@ -79,22 +77,35 @@ public class AbductionManagerImpl implements AbductionManager {
         System.out.println("************************************************");
     }
 
+    public <T> void setBackgroundKnowledgeOriginal(T owlOntologyOriginal) {
+        backgroundKnowledgeOriginal = (OWLOntology)owlOntologyOriginal;
+    }
+
+    public OWLOntology getBackgroundKnowledgeOriginal() {
+        return backgroundKnowledgeOriginal;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                     OVERRIDED METHODS                                                                          //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//    @Override
+//    public <T> void setBackgroundKnowledge(T t) {
+//        if (t instanceof File) {
+//            final OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+//            try {
+//                backgroundKnowledge = manager.loadOntologyFromOntologyDocument((File)t);
+//            } catch (OWLOntologyCreationException e) {
+//                e.printStackTrace();
+//            }
+//        } else if (t instanceof OWLOntology) {
+//            backgroundKnowledge = (OWLOntology) t;
+//        }
+//    }
+
     @Override
-    public <T> void setBackgroundKnowledge(T t) {
-        if (t instanceof File) {
-            final OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-            try {
-                backgroundKnowledge = manager.loadOntologyFromOntologyDocument((File)t);
-            } catch (OWLOntologyCreationException e) {
-                e.printStackTrace();
-            }
-        } else if (t instanceof OWLOntology) {
-            backgroundKnowledge = (OWLOntology) t;
-        }
+    public <T> void setBackgroundKnowledge(T owlOntology) {
+        backgroundKnowledge = (OWLOntology)owlOntology;
     }
 
     @Override
@@ -157,7 +168,7 @@ public class AbductionManagerImpl implements AbductionManager {
 
     @Override
     public String getOutputAdditionalInfo() {
-        throw new NotImplementedException("Not implemented yet.");
+        throw new NotImplementedException("Not needed to be implemented.");
     }
 
     @Override
@@ -197,7 +208,11 @@ public class AbductionManagerImpl implements AbductionManager {
                 try {
                     synchronized(monitor) {
                         expl = solver.solve();
+                        System.out.println();
+                        System.out.println("je ich:" + String.valueOf(expl.size()));
+                        System.out.println();
                         show(new HashSet<Explanation>(expl));
+
                         sendExplanation(null);
                     }
                 } catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
@@ -207,6 +222,7 @@ public class AbductionManagerImpl implements AbductionManager {
             threadTimes.interrupt();
         }
     }
+
     @Override
     public void setMonitor(Monitor monitor) {
         this.monitor = monitor;

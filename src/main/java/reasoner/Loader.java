@@ -3,7 +3,6 @@ package reasoner;
 import abduction.api.implementation.AbductionManagerImpl;
 import application.Application;
 import application.ExitCode;
-import common.Configuration;
 import common.LogMessage;
 import models.Abducibles;
 import models.Individuals;

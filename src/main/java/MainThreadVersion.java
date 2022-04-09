@@ -7,6 +7,9 @@ import common.Configuration;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.semanticweb.owlapi.apibinding.OWLManager;
+
+import java.io.File;
 
 
 public class MainThreadVersion {
@@ -23,7 +26,8 @@ public class MainThreadVersion {
         AbducibleContainerImpl abducibleContainer = abductionFactory.createAbducibleContainer(abductionManager);
 
         // backgroundKnowledge
-        abductionManager.setBackgroundKnowledge(abducibleContainer.getLoader().getOriginalOntology());
+        abductionManager.setBackgroundKnowledge(abducibleContainer.getLoader().getOntology());
+        abductionManager.setBackgroundKnowledgeOriginal(abducibleContainer.getLoader().getOriginalOntology());
         // observation/s
         abductionManager.setMultipleObservationOnInput(abducibleContainer.getLoader().isMultipleObservationOnInput());
         try {
@@ -32,9 +36,6 @@ public class MainThreadVersion {
             throw new CommonException("Solver exception: ", ex);
         }
 
-//        abducibleContainer.allowLoops(Configuration.LOOPING_ALLOWED);  // teraz je to v parseri
-//        abducibleContainer.allowRoleAssertions(Configuration.ROLES_IN_EXPLANATIONS_ALLOWED);
-
         abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getClasses());
         abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getIndividuals());
         abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getRoles());
@@ -42,8 +43,6 @@ public class MainThreadVersion {
         abducibleContainer.addAssertions(abducibleContainer.getLoader().getAbducibles().getAxioms(abducibleContainer));
 
         abductionManager.setAbducibles(abducibleContainer);
-//        abductionManager.setAdditionalSolverSettings("TODO");
-
 
         // a non-thread version
 

@@ -1,7 +1,6 @@
 package algorithms.hybrid;
 
 import abduction.api.implementation.AbductionManagerImpl;
-import abductionapi.Monitor;
 import algorithms.ISolver;
 import com.google.common.collect.Iterables;
 import common.Configuration;
@@ -65,11 +64,11 @@ public class HybridSolver implements ISolver {
 
     @Override
     public List<Explanation> solve() throws OWLOntologyStorageException, OWLOntologyCreationException {
-        this.ontology = this.abductionManager.getBackgroundKnowledge();
+        this.ontology = this.abductionManager.getBackgroundKnowledgeOriginal();
         this.modelExtractor = new ModelExtractor(abductionManager.getAbducibleContainer().getLoader(), abductionManager.getReasonerManager(), this);
-        this.explanationsFilter = new ExplanationsFilter(abductionManager.getAbducibleContainer().getLoader(), abductionManager.getReasonerManager(), this);
+        this.explanationsFilter = new ExplanationsFilter(abductionManager, this);
         this.setDivider = new SetDivider(this);
-        this.checkRules = new CheckRules(abductionManager.getAbducibleContainer().getLoader(), abductionManager.getReasonerManager());
+        this.checkRules = new CheckRules(abductionManager);
 
         negObservation = abductionManager.getAbducibleContainer().getLoader().getNegObservation().getOwlAxiom();
 
@@ -85,7 +84,7 @@ public class HybridSolver implements ISolver {
         if (abductionManager.getReasonerManager().isOntologyWithLiteralsConsistent(abd_literals.getOwlAxioms(), ontology))
             return null;
         startSolving();
-        return explanationsFilter.showExplanations(abductionManager);
+        return explanationsFilter.showExplanations();
     }
 
     private void initialize() {
@@ -301,8 +300,8 @@ public class HybridSolver implements ISolver {
         if (node.depth > currentDepth){
             Double time = threadTimes.getTotalUserTimeInSec();
             level_times.put(currentDepth, time);
-            explanationsFilter.showExplanationsWithDepth(currentDepth, false, time, abductionManager);
-            explanationsFilter.showExplanationsWithLevel(currentDepth, false, time, abductionManager);
+            explanationsFilter.showExplanationsWithDepth(currentDepth, false, time);
+            explanationsFilter.showExplanationsWithLevel(currentDepth, false, time);
             pathsInCertainDepth = new HashSet<>();
             return true;
         }
@@ -314,8 +313,8 @@ public class HybridSolver implements ISolver {
             System.out.println("timeout");
             Double time = threadTimes.getTotalUserTimeInSec();
             level_times.put(currentDepth, time);
-            explanationsFilter.showExplanationsWithDepth(currentDepth + 1, true, time, abductionManager);
-            explanationsFilter.showExplanationsWithLevel(currentDepth, true, time, abductionManager);
+            explanationsFilter.showExplanationsWithDepth(currentDepth + 1, true, time);
+            explanationsFilter.showExplanationsWithLevel(currentDepth, true, time);
             return true;
         }
         return false;
@@ -576,7 +575,8 @@ public class HybridSolver implements ISolver {
     }
 
     public void removeAxiomsFromOntology(Set<OWLAxiom> axioms){
-        abductionManager.getReasonerManager().resetOntology(abductionManager.getBackgroundKnowledge().axioms());
+//        abductionManager.getReasonerManager().resetOntology(abductionManager.getAbducibleContainer().getLoader().getOriginalOntology().axioms());
+        abductionManager.getReasonerManager().resetOntology(abductionManager.getBackgroundKnowledgeOriginal().axioms());
     }
 
 }
