@@ -1,5 +1,6 @@
 package parser;
 
+import abduction.api.implementation.AbductionManagerImpl;
 import application.Application;
 import application.ExitCode;
 import common.Configuration;
@@ -23,20 +24,20 @@ public class ObservationParser implements IObservationParser {
     }
 
     @Override
-    public void parse() throws Exception {
+    public void parse(AbductionManagerImpl abductionManager) throws Exception {
         try{
-            createOntologyFromObservation();
+            createOntologyFromObservation(abductionManager);
         } catch (OWLOntologyCreationException e){
             throw new OWLOntologyCreationException("Invalid format of observation");
         } catch (OWLOntologyStorageException e){
             throw e;
         }
-        logger.log(Level.INFO, "Observation: ".concat(Configuration.OBSERVATION));
+        logger.log(Level.INFO, "Observation: ".concat(abductionManager.OBSERVATION));
     }
 
-    private void createOntologyFromObservation() throws OWLOntologyCreationException, OWLOntologyStorageException {
+    private void createOntologyFromObservation(AbductionManagerImpl abductionManager) throws OWLOntologyCreationException, OWLOntologyStorageException {
         OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-        observationOntology = manager.loadOntologyFromOntologyDocument(new StringDocumentSource(Configuration.OBSERVATION));
+        observationOntology = manager.loadOntologyFromOntologyDocument(new StringDocumentSource(abductionManager.OBSERVATION));
 
         StringDocumentTarget documentTarget = new StringDocumentTarget();
         observationOntology.saveOntology(documentTarget);

@@ -23,7 +23,7 @@ public class AbducibleContainerImpl implements AbducibleContainer {
     private boolean roleAssertions = false;
     private boolean conceptAssertions = false;
     private boolean complexConcepts = false;
-    private boolean conceptComplement = false;
+    private boolean conceptComplements = false;
 
     private Set<OWLClass> abduciblesConcepts = new HashSet<>();
     private Set<OWLNamedIndividual> abduciblesIndividuals = new HashSet<>();
@@ -33,18 +33,29 @@ public class AbducibleContainerImpl implements AbducibleContainer {
 
     private ILoader loader;
 
-    public AbducibleContainerImpl() throws Exception {
+    public AbducibleContainerImpl(AbductionManagerImpl abductionManager) throws Exception {
         String[] x = new String[1];
 //        x[0] = "/home/iveta/Plocha/skola/diplomovka/testingFilesDummyClass/testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3_noNeg.in";
 //        x[0] = "/home/iveta/Plocha/skola/diplomovka/MHS-MXP-algorithm/in/input_fam_abd.txt";
-        x[0] = "C:/Users/zuz/Documents/UNI/Praca/Mhs-MXP-Algo/testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3_noNeg.in";
-        x[0] = "C:/Users/zuz/Documents/UNI/Praca/Mhs-MXP-Algo/in/input_fam_abd.txt";
+
+        // 1. examples - asi su ok - treba este debuggnut lebo idu trochu aj bez api
+        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3.in";
+//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3_noNeg.in";
+//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam_abd.txt";
+//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/mhs_mod/family.in";
+//        C:\Users\zuz\Documents\UNI\Praca\DEMO\DT-demo\DT-demo\in\mhs_mod\family.in
+//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam.txt";
+//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam_2.txt";
+//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/divideSets.in";
+
+
+        // 2. example
 
         ArgumentParser argumentParser = new ArgumentParser();
         //argumentParser.parse(args);
-        argumentParser.parse(x);
+        argumentParser.parse(x, this, abductionManager);
         loader = new Loader();
-        loader.initialize(Configuration.REASONER);
+        loader.initialize(abductionManager);
     }
 
     public ILoader getLoader() {
@@ -93,12 +104,12 @@ public class AbducibleContainerImpl implements AbducibleContainer {
 
     @Override
     public void allowConceptComplement() {
-        conceptComplement = true;
+        conceptComplements = true;
     }
 
     @Override
     public void allowConceptComplement(Boolean allow) {
-        conceptComplement = allow;
+        conceptComplements = allow;
     }
 
     @Override
@@ -174,24 +185,24 @@ public class AbducibleContainerImpl implements AbducibleContainer {
 
     }
 
-    public boolean isLoops() {
+    public boolean areLoopsEnabled() {
         return loops;
     }
 
-    public boolean isRoleAssertions() {
+    public boolean areRoleAssertionsEnabled() {
         return roleAssertions;
     }
 
-    public boolean isConceptAssertions() {
+    public boolean areConceptAssertionsEnabled() {
         return conceptAssertions;
     }
 
-    public boolean isComplexConcepts() {
+    public boolean areComplexConcepts() {
         return complexConcepts;
     }
 
-    public boolean isConceptComplement() {
-        return conceptComplement;
+    public boolean areConceptComplementsEnabled() {
+        return conceptComplements;
     }
 
     public Set<OWLClass> getAbduciblesConcepts() {

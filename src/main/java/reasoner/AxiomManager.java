@@ -1,5 +1,6 @@
 package reasoner;
 
+import abduction.api.implementation.AbductionManagerImpl;
 import common.Configuration;
 import common.DLSyntax;
 import org.semanticweb.owlapi.model.*;
@@ -39,18 +40,17 @@ public class AxiomManager {
         return owlAxioms;
     }
 
-    public static List<OWLAxiom> createObjectPropertyAssertionAxiom(ILoader loader, OWLAxiom axiom) {
+    public static List<OWLAxiom> createObjectPropertyAssertionAxiom(AbductionManagerImpl abductionManager, OWLAxiom axiom) {
         List<OWLAxiom> owlAxioms = new LinkedList<>();
-
         if (OWLDeclarationAxiom.class.isAssignableFrom(axiom.getClass()) && OWLObjectProperty.class.isAssignableFrom(((OWLDeclarationAxiom) axiom).getEntity().getClass())) {
-            OWLObjectProperty objectProperty = loader.getDataFactory().getOWLObjectProperty(((OWLDeclarationAxiom) axiom).getEntity().getIRI());
-            for (OWLNamedIndividual subject : loader.getAbducibles().getIndividuals()) {
-                if(!loader.isMultipleObservationOnInput() || subject != loader.getObservation().getReductionIndividual()){
-                    for (OWLNamedIndividual object : loader.getAbducibles().getIndividuals()) {
-                        if (Configuration.LOOPING_ALLOWED || !subject.equals(object)) {
-                            if(!loader.isMultipleObservationOnInput() || object != loader.getObservation().getReductionIndividual()){
-                                owlAxioms.add(loader.getDataFactory().getOWLObjectPropertyAssertionAxiom(objectProperty, subject, object));
-                                owlAxioms.add(loader.getDataFactory().getOWLNegativeObjectPropertyAssertionAxiom(objectProperty, subject, object));
+            OWLObjectProperty objectProperty = abductionManager.getAbducibleContainer().getLoader().getDataFactory().getOWLObjectProperty(((OWLDeclarationAxiom) axiom).getEntity().getIRI());
+            for (OWLNamedIndividual subject : abductionManager.getAbducibleContainer().getAbduciblesIndividuals()) {
+                if(!abductionManager.isMultipleObservationOnInput() || subject != abductionManager.getObservation().getReductionIndividual()){
+                    for (OWLNamedIndividual object : abductionManager.getAbducibleContainer().getAbduciblesIndividuals()) {
+                        if (abductionManager.getAbducibleContainer().areLoopsEnabled() || !subject.equals(object)) {
+                            if(!abductionManager.isMultipleObservationOnInput() || object != abductionManager.getObservation().getReductionIndividual()){
+                                owlAxioms.add(abductionManager.getAbducibleContainer().getLoader().getDataFactory().getOWLObjectPropertyAssertionAxiom(objectProperty, subject, object));
+                                owlAxioms.add(abductionManager.getAbducibleContainer().getLoader().getDataFactory().getOWLNegativeObjectPropertyAssertionAxiom(objectProperty, subject, object));
                             }
                         }
                     }
@@ -60,17 +60,17 @@ public class AxiomManager {
         return owlAxioms;
     }
 
-    public static List<OWLAxiom> createObjectPropertyAssertionAxiom(ILoader loader, OWLObjectProperty objectProperty) {
+    public static List<OWLAxiom> createObjectPropertyAssertionAxiom(AbductionManagerImpl abductionManager, OWLObjectProperty objectProperty) {
         List<OWLAxiom> owlAxioms = new LinkedList<>();
 
         if (objectProperty != null) {
-            for (OWLNamedIndividual subject : loader.getAbducibles().getIndividuals()) {
-                if(!loader.isMultipleObservationOnInput() || subject != loader.getObservation().getReductionIndividual()){
-                    for (OWLNamedIndividual object : loader.getAbducibles().getIndividuals()) {
-                        if (Configuration.LOOPING_ALLOWED || !subject.equals(object)) {
-                            if(!loader.isMultipleObservationOnInput() || object != loader.getObservation().getReductionIndividual()){
-                                owlAxioms.add(loader.getDataFactory().getOWLObjectPropertyAssertionAxiom(objectProperty, subject, object));
-                                owlAxioms.add(loader.getDataFactory().getOWLNegativeObjectPropertyAssertionAxiom(objectProperty, subject, object));
+            for (OWLNamedIndividual subject : abductionManager.getAbducibleContainer().getAbduciblesIndividuals()) {
+                if(!abductionManager.getAbducibleContainer().getLoader().isMultipleObservationOnInput() || subject != abductionManager.getObservation().getReductionIndividual()){
+                    for (OWLNamedIndividual object : abductionManager.getAbducibleContainer().getAbduciblesIndividuals()) {
+                        if (abductionManager.getAbducibleContainer().areLoopsEnabled() || !subject.equals(object)) {
+                            if(!abductionManager.isMultipleObservationOnInput() || object != abductionManager.getObservation().getReductionIndividual()){
+                                owlAxioms.add(abductionManager.getAbducibleContainer().getLoader().getDataFactory().getOWLObjectPropertyAssertionAxiom(objectProperty, subject, object));
+                                owlAxioms.add(abductionManager.getAbducibleContainer().getLoader().getDataFactory().getOWLNegativeObjectPropertyAssertionAxiom(objectProperty, subject, object));
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 package reasoner;
 
+import abduction.api.implementation.AbductionManagerImpl;
 import application.Application;
 import application.ExitCode;
 import common.Configuration;
@@ -44,20 +45,20 @@ public class Loader implements ILoader {
     private boolean isMultipleObservationOnInput = false;
 
     @Override
-    public void initialize(ReasonerType reasonerType) throws Exception {
-        loadReasoner(reasonerType);
-        loadObservation();
+    public void initialize(AbductionManagerImpl abductionManager) throws Exception {
+        loadReasoner(abductionManager);
+        loadObservation(abductionManager);
         loadPrefixes();
         loadAbductibles();
     }
 
-    private void loadReasoner(ReasonerType reasonerType) {
+    private void loadReasoner(AbductionManagerImpl abductionManager) {
         try {
             ontologyManager = OWLManager.createOWLOntologyManager();
-            ontology = ontologyManager.loadOntologyFromOntologyDocument(new File(Configuration.INPUT_ONT_FILE));
-            originalOntology = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(new File(Configuration.INPUT_ONT_FILE));
+            ontology = ontologyManager.loadOntologyFromOntologyDocument(new File(abductionManager.INPUT_ONT_FILE));
+            originalOntology = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(new File(abductionManager.INPUT_ONT_FILE));
 
-            changeReasoner(reasonerType);
+            changeReasoner(abductionManager.REASONER);
             initializeReasoner();
 
             if (reasoner.isConsistent()) {
@@ -99,11 +100,11 @@ public class Loader implements ILoader {
         reasoner.flush();
     }
 
-    private void loadObservation() throws Exception {
+    private void loadObservation(AbductionManagerImpl abductionManager) throws Exception {
         namedIndividuals = new Individuals();
 
         IObservationParser observationParser = new ObservationParser(this);
-        observationParser.parse();
+        observationParser.parse(abductionManager);
     }
 
     private void loadPrefixes(){

@@ -1,5 +1,6 @@
 package fileLogger;
 
+import abduction.api.implementation.AbductionManagerImpl;
 import common.Configuration;
 import common.DLSyntax;
 
@@ -19,15 +20,15 @@ public class FileLogger {
     public static final String LOG_FILE__POSTFIX = ".log";
     private static String FILE_DIRECTORY = "";
 
-    public static void appendToFile(String fileName, long currentTimeMillis, String log) {
-        if(Configuration.MHS_MODE){
+    public static void appendToFile(String fileName, long currentTimeMillis, String log, AbductionManagerImpl abductionManager) {
+        if(abductionManager.MHS_MODE){
             FILE_DIRECTORY = "logs_mhs";
         } else {
             FILE_DIRECTORY = "logs" + Configuration.version;
         }
-        createFileIfNotExists(fileName, currentTimeMillis);
+        createFileIfNotExists(fileName, currentTimeMillis, abductionManager);
         try {
-            String file_path = getFilePath(fileName, currentTimeMillis);
+            String file_path = getFilePath(fileName, currentTimeMillis, abductionManager);
             System.out.println(Paths.get(file_path));
             Files.write(Paths.get(file_path), log.getBytes(), StandardOpenOption.APPEND);
         } catch (IOException exception) {
@@ -35,8 +36,8 @@ public class FileLogger {
         }
     }
 
-    private static void createFileIfNotExists(String fileName, long currentTimeMillis) {
-        File file = new File(getFilePath(fileName, currentTimeMillis));
+    private static void createFileIfNotExists(String fileName, long currentTimeMillis, AbductionManagerImpl abductionManager) {
+        File file = new File(getFilePath(fileName, currentTimeMillis, abductionManager));
         try {
             file.createNewFile();
         } catch (IOException exception) {
@@ -44,13 +45,13 @@ public class FileLogger {
         }
     }
 
-    public static String getFilePath(String fileName, long currentTimeMillis) {
+    public static String getFilePath(String fileName, long currentTimeMillis, AbductionManagerImpl abductionManager) {
         String[] inputFile;
         try {
-            inputFile = Configuration.INPUT_ONT_FILE.split(File.separator);
+            inputFile = abductionManager.INPUT_ONT_FILE.split(File.separator);
         }
         catch(Exception e) {
-            inputFile = Configuration.INPUT_ONT_FILE.split("\\\\");
+            inputFile = abductionManager.INPUT_ONT_FILE.split("\\\\");
         }
         String input = inputFile[inputFile.length - 1];
         String inputFileName = input;
@@ -60,7 +61,7 @@ public class FileLogger {
         }
 
         String directoryPath;
-        directoryPath = FILE_DIRECTORY.concat(File.separator).concat(Configuration.REASONER.name()).concat(File.separator).concat(inputFileName);
+        directoryPath = FILE_DIRECTORY.concat(File.separator).concat(abductionManager.REASONER.name()).concat(File.separator).concat(inputFileName);
         File directory = new File(directoryPath);
         if (!directory.exists()) {
             directory.mkdirs();
@@ -68,11 +69,11 @@ public class FileLogger {
 
 //        String observation = Configuration.OBSERVATION.replaceAll("\\s+", "_").replaceAll(":", "-");
 //        String observation = observationToFilePath();
-        return directoryPath.concat(File.separator).concat("" + currentTimeMillis + "__").concat(Configuration.INPUT_FILE_NAME + "__").concat(fileName).concat(LOG_FILE__POSTFIX);
+        return directoryPath.concat(File.separator).concat("" + currentTimeMillis + "__").concat(abductionManager.INPUT_FILE_NAME + "__").concat(fileName).concat(LOG_FILE__POSTFIX);
     }
 
-    private static String observationToFilePath(){
-        String[] observation = Configuration.OBSERVATION.substring(0, Configuration.OBSERVATION.length()-1).split("\\"+ DLSyntax.LEFT_PARENTHESES);
+    private static String observationToFilePath(AbductionManagerImpl abductionManager){
+        String[] observation = abductionManager.OBSERVATION.substring(0, abductionManager.OBSERVATION.length()-1).split("\\"+ DLSyntax.LEFT_PARENTHESES);
         for (int i = 0; i < observation.length; i++){
             if (observation[i].contains(DLSyntax.DELIMITER_ONTOLOGY)){
                 observation[i] = observation[i].substring(observation[i].indexOf(DLSyntax.DELIMITER_ONTOLOGY)+1);

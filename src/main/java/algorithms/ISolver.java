@@ -11,5 +11,5 @@ import java.util.List;
 
 public interface ISolver {
 
-    List<Explanation> solve(AbductionManagerImpl abductionManager) throws OWLOntologyStorageException, OWLOntologyCreationException;
+    List<Explanation> solve() throws OWLOntologyStorageException, OWLOntologyCreationException;
 }

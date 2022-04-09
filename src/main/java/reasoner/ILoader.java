@@ -1,6 +1,8 @@
 package reasoner;
 
 import java.util.*;
+
+import abduction.api.implementation.AbductionManagerImpl;
 import models.Abducibles;
 import models.Individuals;
 import models.Observation;
@@ -11,7 +13,7 @@ import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 
 public interface ILoader {
 
-    void initialize(ReasonerType reasonerType) throws Exception;
+    void initialize(AbductionManagerImpl abductionManager) throws Exception;
 
     void changeReasoner(ReasonerType reasonerType);
 

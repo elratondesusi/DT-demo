@@ -1,14 +1,11 @@
 package models;
 
-import common.Configuration;
-import common.Printer;
-import openllet.owlapi.OWL;
+import abduction.api.implementation.AbducibleContainerImpl;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import reasoner.ILoader;
-import reasoner.Loader;
 
 import java.util.HashSet;
 import java.util.List;
@@ -50,7 +47,7 @@ public class Abducibles {
 
     public Set<OWLObjectProperty> getRoles() { return roles; }
 
-    public Set<OWLAxiom> getAxioms() {
+    public Set<OWLAxiom> getAxioms(AbducibleContainerImpl abducibleContainer) {
         if (axioms == null /*|| axioms.size() < individuals.size() * classes.size() * 2*/){
             this.axioms = new HashSet<>();
             for (OWLNamedIndividual ind: individuals){
@@ -64,7 +61,7 @@ public class Abducibles {
                 }
 
                 for (OWLNamedIndividual object: individuals){
-                    if (!Configuration.LOOPING_ALLOWED && ind.equals(object)){
+                    if (!abducibleContainer.areLoopsEnabled() && ind.equals(object)){
                         continue;
                     }
                     if(loader.isMultipleObservationOnInput() && object.equals(loader.getObservation().getReductionIndividual())){

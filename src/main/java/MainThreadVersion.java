@@ -20,7 +20,7 @@ public class MainThreadVersion {
         // Abduction API - abductionFactory, abductionManager and abducibleContainer
         AbductionManagerAndAbducibleContainerFactoryImpl abductionFactory = new AbductionManagerAndAbducibleContainerFactoryImpl();
         AbductionManagerImpl abductionManager = abductionFactory.createAbductionManager();
-        AbducibleContainerImpl abducibleContainer = abductionFactory.createAbducibleContainer();
+        AbducibleContainerImpl abducibleContainer = abductionFactory.createAbducibleContainer(abductionManager);
 
         // backgroundKnowledge
         abductionManager.setBackgroundKnowledge(abducibleContainer.getLoader().getOriginalOntology());
@@ -32,14 +32,14 @@ public class MainThreadVersion {
             throw new CommonException("Solver exception: ", ex);
         }
 
-        abducibleContainer.allowLoops(Configuration.LOOPING_ALLOWED);
-        abducibleContainer.allowRoleAssertions(Configuration.ROLES_IN_EXPLANATIONS_ALLOWED);
+//        abducibleContainer.allowLoops(Configuration.LOOPING_ALLOWED);  // teraz je to v parseri
+//        abducibleContainer.allowRoleAssertions(Configuration.ROLES_IN_EXPLANATIONS_ALLOWED);
 
         abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getClasses());
         abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getIndividuals());
         abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getRoles());
 
-        abducibleContainer.addAssertions(abducibleContainer.getLoader().getAbducibles().getAxioms());
+        abducibleContainer.addAssertions(abducibleContainer.getLoader().getAbducibles().getAxioms(abducibleContainer));
 
         abductionManager.setAbducibles(abducibleContainer);
 //        abductionManager.setAdditionalSolverSettings("TODO");

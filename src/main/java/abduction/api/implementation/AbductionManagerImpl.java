@@ -17,6 +17,7 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import reasoner.IReasonerManager;
 import reasoner.ReasonerManager;
+import reasoner.ReasonerType;
 import timer.ThreadTimes;
 
 import java.io.File;
@@ -27,11 +28,19 @@ import java.util.Set;
 public class AbductionManagerImpl implements AbductionManager {
 
     private OWLOntology backgroundKnowledge;
+    private OWLOntology backgroundKnowledgeOriginal;
     private Observation observation;
     private AbducibleContainerImpl abducibleContainer;
     private boolean isMultipleObservationOnInput;
     private IReasonerManager reasonerManager;
     Monitor monitor;
+    public static boolean MHS_MODE = false;
+    public static Integer DEPTH;
+    public static Long TIMEOUT;
+    public static String OBSERVATION = "";
+    public static String INPUT_ONT_FILE = "";
+    public static String INPUT_FILE_NAME = "";
+    public static ReasonerType REASONER;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                     SOLVER METHODS                                                                             //
@@ -49,9 +58,9 @@ public class AbductionManagerImpl implements AbductionManager {
         this.reasonerManager = new ReasonerManager(abducibleContainer.getLoader());
     }
 
-    private static ISolver createSolver(ThreadTimes threadTimes) {
+    private ISolver createSolver(ThreadTimes threadTimes) {
         long currentTimeMillis = System.currentTimeMillis();
-        return new HybridSolver(threadTimes, currentTimeMillis);
+        return new HybridSolver(threadTimes, currentTimeMillis, this);
     }
 
     public void setMultipleObservationOnInput(boolean multipleObservationOnInput) {
@@ -118,7 +127,32 @@ public class AbductionManagerImpl implements AbductionManager {
 
     @Override
     public void setAdditionalSolverSettings(String s) {
-        throw new NotImplementedException("Not implemented yet.");
+        String[] tuple = s.split(":");
+        if (tuple.length < 2) {
+            throw new CommonException("Solver does not support this setting: " + s, null);
+        }
+        switch (tuple[0]) {
+            case "MHS_MODE":
+                MHS_MODE = tuple[1].equals("true") ? true : false;
+                break;
+            case "TIMEOUT":
+                TIMEOUT = Long.valueOf(tuple[1]);
+                break;
+            case "DEPTH":
+                DEPTH = Integer.valueOf(tuple[1]);
+                break;
+            case "REASONER":
+                REASONER = ReasonerType.valueOf(tuple[1]);
+                break;
+            case "OBSERVATION":
+                OBSERVATION = s.substring(12);
+                break;
+            case "INPUT_ONT_FILE":
+                INPUT_ONT_FILE = tuple[1];
+                break;
+            default:
+                throw new CommonException("Solver does not support this setting: " + s, null);
+        }
     }
 
     @Override
@@ -135,7 +169,7 @@ public class AbductionManagerImpl implements AbductionManager {
         List<Explanation> expl = null;
         if (solver != null) {
             try {
-                expl = solver.solve(this);
+                expl = solver.solve();
             } catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
                 e.printStackTrace();
             }
@@ -150,7 +184,7 @@ public class AbductionManagerImpl implements AbductionManager {
     }
 
     // for thread version uncomment block below
-    /*
+
     @Override
     public void run() {
         synchronized (this) {
@@ -162,7 +196,7 @@ public class AbductionManagerImpl implements AbductionManager {
             if (solver != null) {
                 try {
                     synchronized(monitor) {
-                        expl = solver.solve(this);
+                        expl = solver.solve();
                         show(new HashSet<Explanation>(expl));
                         sendExplanation(null);
                     }
@@ -190,6 +224,6 @@ public class AbductionManagerImpl implements AbductionManager {
             }
         }
     }
-    */
+
 
 }

@@ -1,5 +1,7 @@
 package parser;
 
+import abduction.api.implementation.AbducibleContainerImpl;
+import abduction.api.implementation.AbductionManagerImpl;
 import application.Application;
 import application.ExitCode;
 import common.Configuration;
@@ -12,13 +14,13 @@ import java.util.ArrayList;
 
 public class ArgumentParser {
 
-    public void parse(String[] args) {
+    public void parse(String[] args, AbducibleContainerImpl abducibleContainer, AbductionManagerImpl abductionManager) {
 
         if (args.length != 1){
             System.err.println("Wrong number of argument for main function: Run program with one configuration input file as argument");
             Application.finish(ExitCode.ERROR);
         }
-        Configuration.INPUT_FILE_NAME = new File(args[0]).getName().split("\\.")[0];
+        abductionManager.INPUT_FILE_NAME = new File(args[0]).getName().split("\\.")[0];
         ArrayList<String[]> lines = read_input_file(args[0]);
 
         boolean read_concepts = false;
@@ -53,15 +55,15 @@ public class ArgumentParser {
                         System.err.println("Could not open -f file " + next);
                         Application.finish(ExitCode.ERROR);
                     }
-                    Configuration.INPUT_ONT_FILE = next;
+                    abductionManager.setAdditionalSolverSettings("INPUT_ONT_FILE:"+next);
                     break;
                 case "-o:":
                     String observation = String.join(" ", line).replace("-o: ", "");
-                    Configuration.OBSERVATION = observation;
+                    abductionManager.setAdditionalSolverSettings("OBSERVATION:"+observation);
                     break;
                 case "-r:":
                     try {
-                        Configuration.REASONER = ReasonerType.valueOf(next.toUpperCase());
+                        abductionManager.setAdditionalSolverSettings("REASONER:"+next.toUpperCase());
                     }
                     catch (IllegalArgumentException e){
                         System.err.println("Reasoner type -r " + next + " is unknown, the only allowed reasoners are hermit|pellet|jfact");
@@ -70,7 +72,7 @@ public class ArgumentParser {
                     break;
                 case "-d:":
                     try {
-                        Configuration.DEPTH = Integer.valueOf(next);
+                        abductionManager.setAdditionalSolverSettings("DEPTH:"+next);
                     }
                     catch (NumberFormatException e) {
                         System.err.println("Wrong tree depth -d " + next + ", choose a whole number value");
@@ -79,7 +81,7 @@ public class ArgumentParser {
                     break;
                 case "-t:":
                     try {
-                        Configuration.TIMEOUT = Long.valueOf(next);
+                        abductionManager.setAdditionalSolverSettings("TIMEOUT:"+next);
                     }
                     catch (NumberFormatException e) {
                         System.err.println("Wrong timeout value -t " + next + ", choose a whole number value");
@@ -109,28 +111,28 @@ public class ArgumentParser {
                     break;
                 case "-mhs:":
                     if (next.equals("true")) {
-                        Configuration.MHS_MODE = true;
+                        abductionManager.setAdditionalSolverSettings("MHS_MODE:true");
                     } else if (!next.equals("false")) {
                         System.err.println("Wrong MHS mode value -mhs" + next + ", allowed values are 'true' and 'false'");
                     }
                     break;
                 case "-l:":
                     if (next.equals("false")) {
-                        Configuration.LOOPING_ALLOWED = false;
+                        abducibleContainer.allowLoops(false);
                     } else if (!next.equals("true")) {
                         System.err.println("Wrong looping allowed value -l" + next + ", allowed values are 'true' and 'false'");
                     }
                     break;
                 case "-eR:":
                     if (next.equals("false")) {
-                        Configuration.ROLES_IN_EXPLANATIONS_ALLOWED = false;
+                        abducibleContainer.allowRoleAssertions(false);
                     } else if (!next.equals("true")) {
                         System.err.println("Wrong roles in explanations allowed value -eR" + next + ", allowed values are 'true' and 'false'");
                     }
                     break;
                 case "-n:":
                     if (next.equals("false")) {
-                        Configuration.NEGATION_ALLOWED = false;
+                        abducibleContainer.allowConceptComplement(false);
                     } else if (!next.equals("true")) {
                         System.err.println("Wrong negation allowed value -n" + next + ", allowed values are 'true' and 'false'");
                     }
@@ -140,15 +142,15 @@ public class ArgumentParser {
                     Application.finish(ExitCode.ERROR);
             }
         }
-        if (Configuration.INPUT_ONT_FILE.equals("") || Configuration.OBSERVATION.equals("")){
+        if (abductionManager.INPUT_ONT_FILE.equals("") || abductionManager.OBSERVATION.equals("")){
             System.err.println("Input file -f and observation -o are both required argument");
             Application.finish(ExitCode.ERROR);
         }
-        if (Configuration.REASONER == null) {
-            Configuration.REASONER = ReasonerType.HERMIT;
+        if (abductionManager.REASONER == null) {
+            abductionManager.REASONER = ReasonerType.HERMIT;
         }
-        if (Configuration.DEPTH == null){
-            Configuration.DEPTH = Integer.MAX_VALUE;
+        if (abductionManager.DEPTH == null){
+            abductionManager.DEPTH = Integer.MAX_VALUE;
         }
     }
 

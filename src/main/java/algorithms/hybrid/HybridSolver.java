@@ -50,21 +50,21 @@ public class HybridSolver implements ISolver {
     private ICheckRules checkRules;
     private Integer currentDepth;
 
-    public HybridSolver(ThreadTimes threadTimes, long currentTimeMillis) {
+    public HybridSolver(ThreadTimes threadTimes, long currentTimeMillis, AbductionManagerImpl abductionManager) {
+        this.abductionManager = abductionManager;
         System.out.println("Optimalizacia QXP " + Configuration.CHECKING_MINIMALITY_BY_QXP);
         System.out.println("Optimalizacia Cached Conflicts - The Longest Conf " + Configuration.CACHED_CONFLICTS_LONGEST_CONFLICT);
         System.out.println("Optimalizacia Cached Conflicts - Median " + Configuration.CACHED_CONFLICTS_TABLE_OF_OCCURRENCE);
-        System.out.println("Roly " + Configuration.ROLES_IN_EXPLANATIONS_ALLOWED);
-        System.out.println("Negation " + Configuration.NEGATION_ALLOWED);
-        System.out.println("MHS MODE " + Configuration.MHS_MODE);
+        System.out.println("Roly " + abductionManager.getAbducibleContainer().areRoleAssertionsEnabled());
+        System.out.println("Negation " + abductionManager.getAbducibleContainer().areConceptComplementsEnabled());
+        System.out.println("MHS MODE " + abductionManager.MHS_MODE);
         System.out.println();
         this.threadTimes = threadTimes;
         this.currentTimeMillis = currentTimeMillis;
     }
 
     @Override
-    public List<Explanation> solve(AbductionManagerImpl abductionManager) throws OWLOntologyStorageException, OWLOntologyCreationException {
-        this.abductionManager = abductionManager;
+    public List<Explanation> solve() throws OWLOntologyStorageException, OWLOntologyCreationException {
         this.ontology = this.abductionManager.getBackgroundKnowledge();
         this.modelExtractor = new ModelExtractor(abductionManager.getAbducibleContainer().getLoader(), abductionManager.getReasonerManager(), this);
         this.explanationsFilter = new ExplanationsFilter(abductionManager.getAbducibleContainer().getLoader(), abductionManager.getReasonerManager(), this);
@@ -85,7 +85,7 @@ public class HybridSolver implements ISolver {
         if (abductionManager.getReasonerManager().isOntologyWithLiteralsConsistent(abd_literals.getOwlAxioms(), ontology))
             return null;
         startSolving();
-        return explanationsFilter.showExplanations();
+        return explanationsFilter.showExplanations(abductionManager);
     }
 
     private void initialize() {
@@ -109,9 +109,9 @@ public class HybridSolver implements ISolver {
             }
         }
 
-        if(Configuration.ROLES_IN_EXPLANATIONS_ALLOWED){
+        if(abductionManager.getAbducibleContainer().areRoleAssertionsEnabled()){
             for(OWLObjectProperty objectProperty : abductionManager.getAbducibleContainer().getAbduciblesRoles()){
-                List<OWLAxiom> objectPropertyAssertionAxiom = AxiomManager.createObjectPropertyAssertionAxiom(abductionManager.getAbducibleContainer().getLoader(), objectProperty);
+                List<OWLAxiom> objectPropertyAssertionAxiom = AxiomManager.createObjectPropertyAssertionAxiom(abductionManager, objectProperty);
                 for (int i = 0; i < objectPropertyAssertionAxiom.size(); i++) {
                     if (i % 2 == 0) {
                         assertionsAxioms.add(objectPropertyAssertionAxiom.get(i));
@@ -132,7 +132,7 @@ public class HybridSolver implements ISolver {
 
         Set<OWLAxiom> to_abd = new HashSet<>();
 
-        if(Configuration.NEGATION_ALLOWED){
+        if(abductionManager.getAbducibleContainer().areConceptComplementsEnabled()){
             to_abd.addAll(assertionsAxioms);
             to_abd.addAll(negAssertionsAxioms);
         } else {
@@ -161,7 +161,7 @@ public class HybridSolver implements ISolver {
             }
 
             ModelNode model = (ModelNode) node;
-            if (model.depth.equals(Configuration.DEPTH)) {
+            if (model.depth.equals(abductionManager.DEPTH)) {
                 break;
             }
 
@@ -192,10 +192,12 @@ public class HybridSolver implements ISolver {
                     if(isTimeout()){
                         return;
                     }
-                    if(Configuration.MHS_MODE){
+                    if(abductionManager.MHS_MODE){
                         if(!isOntologyConsistent()){
                             explanation.setDepth(explanation.getOwlAxioms().size());
-                            // TODO: here new explanation is computed
+
+                            abductionManager.sendExplanation(explanation);
+
                             explanations.add(explanation);
                             path.clear();
                             continue;
@@ -221,7 +223,7 @@ public class HybridSolver implements ISolver {
     }
 
     private void initializeTree(Queue<TreeNode> queue) throws OWLOntologyStorageException {
-        if(Configuration.MHS_MODE){
+        if(abductionManager.MHS_MODE){
             if(!isOntologyConsistent()){
                 return;
             }
@@ -244,11 +246,16 @@ public class HybridSolver implements ISolver {
         explanation.setDepth(explanation.getOwlAxioms().size());
         if(Configuration.CHECKING_MINIMALITY_BY_QXP){
             Explanation newExplanation = getMinimalExplanationByCallingQXP(explanation);
+
+            abductionManager.sendExplanation(newExplanation);
+
             explanations.add(newExplanation);
             if(Configuration.CACHED_CONFLICTS_TABLE_OF_OCCURRENCE){
                 setDivider.addPairsOfLiteralsToTable(newExplanation);
             }
         } else {
+            abductionManager.sendExplanation(explanation);
+
             explanations.add(explanation);
             if(Configuration.CACHED_CONFLICTS_TABLE_OF_OCCURRENCE){
                 setDivider.addPairsOfLiteralsToTable(explanation);
@@ -262,7 +269,7 @@ public class HybridSolver implements ISolver {
             path.clear();
             return;
         }
-        if(!Configuration.MHS_MODE){
+        if(!abductionManager.MHS_MODE){
             modelNode.add_node_explanations(model);
             modelNode.add_to_explanations(lenghtOneExplanations);
         }
@@ -294,8 +301,8 @@ public class HybridSolver implements ISolver {
         if (node.depth > currentDepth){
             Double time = threadTimes.getTotalUserTimeInSec();
             level_times.put(currentDepth, time);
-            explanationsFilter.showExplanationsWithDepth(currentDepth, false, time);
-            explanationsFilter.showExplanationsWithLevel(currentDepth, false, time);
+            explanationsFilter.showExplanationsWithDepth(currentDepth, false, time, abductionManager);
+            explanationsFilter.showExplanationsWithLevel(currentDepth, false, time, abductionManager);
             pathsInCertainDepth = new HashSet<>();
             return true;
         }
@@ -303,12 +310,12 @@ public class HybridSolver implements ISolver {
     }
 
     private boolean isTimeout(){
-        if (Configuration.TIMEOUT != null && threadTimes.getTotalUserTimeInSec() > Configuration.TIMEOUT) {
+        if (abductionManager.TIMEOUT != null && threadTimes.getTotalUserTimeInSec() > abductionManager.TIMEOUT) {
             System.out.println("timeout");
             Double time = threadTimes.getTotalUserTimeInSec();
             level_times.put(currentDepth, time);
-            explanationsFilter.showExplanationsWithDepth(currentDepth + 1, true, time);
-            explanationsFilter.showExplanationsWithLevel(currentDepth, true, time);
+            explanationsFilter.showExplanationsWithDepth(currentDepth + 1, true, time, abductionManager);
+            explanationsFilter.showExplanationsWithLevel(currentDepth, true, time, abductionManager);
             return true;
         }
         return false;
@@ -323,7 +330,7 @@ public class HybridSolver implements ISolver {
         }
         pathsInCertainDepth.add(new HashSet<>(path));
 
-        if(Configuration.MHS_MODE){
+        if(abductionManager.MHS_MODE){
             if(!checkRules.isRelevant(explanation)){
                 return true;
             }
@@ -332,7 +339,7 @@ public class HybridSolver implements ISolver {
             }
         }
 
-        if(!Configuration.MHS_MODE){
+        if(!abductionManager.MHS_MODE){
             if (checkRules.isExplanation(explanation)){
                 addToExplanations(explanation);
                 return true;
@@ -514,6 +521,9 @@ public class HybridSolver implements ISolver {
                     newExplanation = getMinimalExplanationByCallingQXP(conflict);
                 }
                 newExplanation.setDepth(newExplanation.getOwlAxioms().size());
+
+                abductionManager.sendExplanation(newExplanation);
+
                 explanations.add(newExplanation);
                 if(Configuration.CACHED_CONFLICTS_TABLE_OF_OCCURRENCE){
                     setDivider.addPairsOfLiteralsToTable(newExplanation);

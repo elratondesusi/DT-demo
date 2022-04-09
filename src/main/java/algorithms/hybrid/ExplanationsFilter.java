@@ -1,5 +1,6 @@
 package algorithms.hybrid;
 
+import abduction.api.implementation.AbductionManagerImpl;
 import common.Configuration;
 import common.DLSyntax;
 import common.Printer;
@@ -29,9 +30,9 @@ public class ExplanationsFilter {
         this.checkRules = new CheckRules(loader, reasonerManager);
     }
 
-    public List<Explanation> showExplanations() throws OWLOntologyStorageException, OWLOntologyCreationException {
+    public List<Explanation> showExplanations(AbductionManagerImpl abductionManager) throws OWLOntologyStorageException, OWLOntologyCreationException {
         List<Explanation> filteredExplanations = new ArrayList<>();
-        if(Configuration.MHS_MODE){
+        if(abductionManager.MHS_MODE){
             filteredExplanations.addAll(hybridSolver.explanations);
         } else {
             filteredExplanations = getConsistentExplanations();
@@ -40,24 +41,24 @@ public class ExplanationsFilter {
         hybridSolver.path.clear();
         minimalExplanations = new LinkedList<>();
 
-        StringBuilder result = showExplanationsAccordingToLength(filteredExplanations);
-        FileLogger.appendToFile(FileLogger.HYBRID_LOG_FILE__PREFIX, hybridSolver.currentTimeMillis, result.toString());
+        StringBuilder result = showExplanationsAccordingToLength(filteredExplanations, abductionManager);
+        FileLogger.appendToFile(FileLogger.HYBRID_LOG_FILE__PREFIX, hybridSolver.currentTimeMillis, result.toString(), abductionManager);
 
-        log_explanations_times(minimalExplanations);
+        log_explanations_times(minimalExplanations, abductionManager);
 
-        if(!Configuration.MHS_MODE){
+        if(!abductionManager.MHS_MODE){
             StringBuilder resultLevel = showExplanationsAccordingToLevel(new ArrayList<>(minimalExplanations));
-            FileLogger.appendToFile(FileLogger.HYBRID_LEVEL_LOG_FILE__PREFIX, hybridSolver.currentTimeMillis, resultLevel.toString());
+            FileLogger.appendToFile(FileLogger.HYBRID_LEVEL_LOG_FILE__PREFIX, hybridSolver.currentTimeMillis, resultLevel.toString(), abductionManager);
         }
         return minimalExplanations;
     }
 
-    private StringBuilder showExplanationsAccordingToLength(List<Explanation> filteredExplanations) throws OWLOntologyCreationException {
+    private StringBuilder showExplanationsAccordingToLength(List<Explanation> filteredExplanations, AbductionManagerImpl abductionManager) throws OWLOntologyCreationException {
         StringBuilder result = new StringBuilder();
         int depth = 1;
         while (filteredExplanations.size() > 0) {
             List<Explanation> currentExplanations = removeExplanationsWithDepth(filteredExplanations, depth);
-            if(!Configuration.MHS_MODE){
+            if(!abductionManager.MHS_MODE){
                 if(!Configuration.CHECKING_MINIMALITY_BY_QXP){
                     filterIfNotMinimal(currentExplanations);
                 }
@@ -146,13 +147,13 @@ public class ExplanationsFilter {
         return time;
     }
 
-    private void log_explanations_times(List<Explanation> explanations){
+    private void log_explanations_times(List<Explanation> explanations, AbductionManagerImpl abductionManager){
         StringBuilder result = new StringBuilder();
         for (Explanation exp: explanations){
             String line = String.format("%.2f;%s\n", exp.getAcquireTime(), exp);
             result.append(line);
         }
-        FileLogger.appendToFile(FileLogger.HYBRID_EXP_TIMES_LOG_FILE__PREFIX, hybridSolver.currentTimeMillis, result.toString());
+        FileLogger.appendToFile(FileLogger.HYBRID_EXP_TIMES_LOG_FILE__PREFIX, hybridSolver.currentTimeMillis, result.toString(), abductionManager);
     }
 
     private List<Explanation> getConsistentExplanations() throws OWLOntologyStorageException {
@@ -215,20 +216,20 @@ public class ExplanationsFilter {
         return name.contains(DLSyntax.DISPLAY_NEGATION);
     }
 
-    public void showExplanationsWithDepth(Integer depth, boolean timeout, Double time) {
+    public void showExplanationsWithDepth(Integer depth, boolean timeout, Double time, AbductionManagerImpl abductionManager) {
         List<Explanation> currentExplanations = hybridSolver.explanations.stream().filter(explanation -> explanation.getDepth().equals(depth)).collect(Collectors.toList());
         String currentExplanationsFormat = StringUtils.join(currentExplanations, ",");
         String line = String.format("%d;%d;%.2f%s;{%s}\n", depth, currentExplanations.size(), time, timeout ? "-TIMEOUT" : "", currentExplanationsFormat);
         System.out.print(line);
-        FileLogger.appendToFile(FileLogger.HYBRID_PARTIAL_EXPLANATIONS_LOG_FILE__PREFIX, hybridSolver.currentTimeMillis, line);
+        FileLogger.appendToFile(FileLogger.HYBRID_PARTIAL_EXPLANATIONS_LOG_FILE__PREFIX, hybridSolver.currentTimeMillis, line, abductionManager);
     }
 
-    public void showExplanationsWithLevel(Integer level, boolean timeout, Double time){
+    public void showExplanationsWithLevel(Integer level, boolean timeout, Double time, AbductionManagerImpl abductionManager){
         List<Explanation> currentExplanations = hybridSolver.explanations.stream().filter(explanation -> explanation.getLevel().equals(level)).collect(Collectors.toList());
         String currentExplanationsFormat = StringUtils.join(currentExplanations, ",");
         String line = String.format("%d;%d;%.2f%s;{%s}\n", level, currentExplanations.size(), time, timeout ? "-TIMEOUT" : "", currentExplanationsFormat);
         //System.out.print(line);
-        FileLogger.appendToFile(FileLogger.HYBRID_PARTIAL_EXPLANATIONS_ACCORDING_TO_LEVELS_LOG_FILE__PREFIX, hybridSolver.currentTimeMillis, line);
+        FileLogger.appendToFile(FileLogger.HYBRID_PARTIAL_EXPLANATIONS_ACCORDING_TO_LEVELS_LOG_FILE__PREFIX, hybridSolver.currentTimeMillis, line, abductionManager);
     }
 
 }
