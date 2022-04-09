@@ -1,8 +1,7 @@
 package algorithms.hybrid;
 
-import abduction.api.implementation.AbducibleContainerImpl;
 import abduction.api.implementation.AbductionManagerImpl;
-import abductionapi.manager.AbductionManager;
+import abductionapi.Monitor;
 import algorithms.ISolver;
 import com.google.common.collect.Iterables;
 import common.Configuration;
@@ -13,8 +12,6 @@ import models.Literals;
 import org.apache.commons.lang3.StringUtils;
 import org.semanticweb.owlapi.model.*;
 import reasoner.AxiomManager;
-import reasoner.ILoader;
-import reasoner.IReasonerManager;
 import timer.ThreadTimes;
 
 import java.util.*;
@@ -198,6 +195,7 @@ public class HybridSolver implements ISolver {
                     if(Configuration.MHS_MODE){
                         if(!isOntologyConsistent()){
                             explanation.setDepth(explanation.getOwlAxioms().size());
+                            // TODO: here new explanation is computed
                             explanations.add(explanation);
                             path.clear();
                             continue;
@@ -389,7 +387,11 @@ public class HybridSolver implements ISolver {
         removeAxiomsFromOntology(path);
         if (literals.getOwlAxioms().size() == 1) {
             List<Explanation> explanations = new LinkedList<>();
-            explanations.add(new Explanation(literals.getOwlAxioms(), literals.getOwlAxioms().size(), currentDepth, threadTimes.getTotalUserTimeInSec()));
+            Explanation newExplanation = new Explanation(literals.getOwlAxioms(), literals.getOwlAxioms().size(), currentDepth, threadTimes.getTotalUserTimeInSec());
+
+            abductionManager.sendExplanation(newExplanation);
+
+            explanations.add(newExplanation);
             return new Conflict(new Literals(), explanations);
         }
 
@@ -440,6 +442,9 @@ public class HybridSolver implements ISolver {
             if(Configuration.CHECKING_MINIMALITY_BY_QXP){
                 newExplanation = getMinimalExplanationByCallingQXP(CS);
             }
+
+            abductionManager.sendExplanation(newExplanation);
+
             explanations.add(newExplanation);
             if(Configuration.CACHED_CONFLICTS_TABLE_OF_OCCURRENCE){
                 setDivider.addPairsOfLiteralsToTable(newExplanation);

@@ -31,8 +31,8 @@ public class AbductionManagerImpl implements AbductionManager {
     private IReasonerManager reasonerManager;
     Monitor monitor;
 
-    ////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public IReasonerManager getReasonerManager() {
         return reasonerManager;
@@ -91,6 +91,29 @@ public class AbductionManagerImpl implements AbductionManager {
     }
 
     @Override
+    public void run() {
+        synchronized (this) {
+            ThreadTimes threadTimes = new ThreadTimes(100);
+            threadTimes.start();
+            this.setReasonerManager();
+            ISolver solver = createSolver(threadTimes);
+            List<Explanation> expl = null;
+            if (solver != null) {
+                try {
+                    synchronized(monitor) {
+                        expl = solver.solve(this);
+                        show(new HashSet<Explanation>(expl));
+                        sendExplanation(null);
+                    }
+                } catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
+                    e.printStackTrace();
+                }
+            }
+            threadTimes.interrupt();
+        }
+    }
+
+    @Override
     public <T> void setObservation(T observation) {
         if (!isMultipleObservationOnInput && ((Observation)observation).getAxiomsInMultipleObservations() != null&& !((Observation)observation).getAxiomsInMultipleObservations().isEmpty()) {
             throw new MultiObservationException(null);
@@ -103,12 +126,11 @@ public class AbductionManagerImpl implements AbductionManager {
         this.abducibleContainer = (AbducibleContainerImpl)t;
     }
 
-    @Override
     public <T> void show(T explanations) {
         System.out.println("\n\n************************************************");
         System.out.println("* Explanations are:                            *");
         System.out.println("************************************************");
-        ((Set<Explanation>)explanations).stream().forEach(e -> System.out.println(e));
+        ((Set)explanations).stream().forEach(e -> System.out.println(e));
         System.out.println("************************************************");
     }
 
@@ -139,21 +161,6 @@ public class AbductionManagerImpl implements AbductionManager {
     @Override
     public <T> void setObservation(Set<T> set) throws MultiObservationException, AxiomObservationException {
 
-    }
-
-    @Override
-    public void run() {
-        synchronized (this) {
-            while (true) {
-                synchronized(monitor) {
-//                    Main.main.wait();
-                    monitor.addNewExplanation(backgroundKnowledge);
-                    monitor.notifyAll();
-                }
-//                System.out.println(monitor.getNextExplanation());
-
-            }
-        }
     }
 
     @Override

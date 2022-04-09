@@ -2,24 +2,12 @@ import abduction.api.implementation.AbducibleContainerImpl;
 import abduction.api.implementation.AbductionManagerAndAbducibleContainerFactoryImpl;
 import abduction.api.implementation.AbductionManagerImpl;
 import abductionapi.exception.CommonException;
-import algorithms.ISolver;
-import algorithms.hybrid.HybridSolver;
 import common.Configuration;
 import models.Explanation;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.semanticweb.owlapi.apibinding.OWLManager;
-import parser.AbduciblesParser;
-import parser.ArgumentParser;
-import reasoner.ILoader;
-import reasoner.IReasonerManager;
-import reasoner.Loader;
-import reasoner.ReasonerManager;
-import timer.ThreadTimes;
 
-import java.io.File;
-import java.util.List;
 import java.util.Set;
 
 

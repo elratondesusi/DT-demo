@@ -3,28 +3,15 @@ import abduction.api.implementation.AbductionManagerAndAbducibleContainerFactory
 import abduction.api.implementation.AbductionManagerImpl;
 import abductionapi.Monitor;
 import abductionapi.exception.CommonException;
-import algorithms.ISolver;
-import algorithms.hybrid.HybridSolver;
 import common.Configuration;
-import models.Explanation;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.semanticweb.owlapi.apibinding.OWLManager;
-import parser.AbduciblesParser;
-import parser.ArgumentParser;
-import reasoner.ILoader;
-import reasoner.IReasonerManager;
-import reasoner.Loader;
-import reasoner.ReasonerManager;
-import timer.ThreadTimes;
-
-import java.io.File;
-import java.util.List;
-import java.util.Set;
 
 
 public class MainThreadVersion {
+
+    private static Monitor monitor = new Monitor();
 
     public static void main(String[] args) throws Exception {
         Logger.getRootLogger().setLevel(Level.OFF);
@@ -58,10 +45,12 @@ public class MainThreadVersion {
         abductionManager.setAdditionalSolverSettings("TODO");
 
 
-        Set<Explanation> explanations = abductionManager.getExplanations();
-        abductionManager.show(explanations);
+        // a non-thread version
 
-        // output - thread version
+//        Set<Explanation> explanations = abductionManager.getExplanations();
+//        abductionManager.show(explanations);
+
+        // a thread version
 
         // At first monitor is set to AbductionManager.
         abductionManager.setMonitor(monitor);
@@ -69,19 +58,25 @@ public class MainThreadVersion {
         new Thread(abductionManager, "abductionManager").start();
         // Then method run in AbductionManager is executed and new explanations are computed.
         // If any new explanation is computed BY a solver (overriding AbductionManager.run), it will send a notification on a monitor.
-        // Meanwhile, application monitor is waiting for a new explanation in method Demo.run to be showed.
-//        new Thread(this, "abductionManager").start();
+        // Meanwhile, application monitor is waiting for a new explanation to be showed.
 
         Thread ct = new Thread() {
-            // run() method of a thread
             public void run()
             {
-
                 while (true) {
                     synchronized(monitor) {
                         try {
                             monitor.wait();
-                            System.out.println(monitor.getNextExplanation());
+                            Object explanation = monitor.getNextExplanation();
+                            if (explanation == null) {
+                                monitor.notify();
+                                break;
+                            }
+                            System.out.println("************************************************");
+                            System.out.println("New explanation is computed:");
+                            System.out.println(explanation);
+                            System.out.println("************************************************");
+                            monitor.notify();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -89,23 +84,6 @@ public class MainThreadVersion {
                 }
                 }
         };
-        // Starting child thread
         ct.start();
     }
-    private static Monitor monitor = new Monitor();
-
-
-//    @Override
-//    public void run() {
-//        while (true) {
-//            synchronized(monitor) {
-//                try {
-//                    monitor.wait();
-//                    System.out.println(monitor.getNextExplanation());
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
 }
