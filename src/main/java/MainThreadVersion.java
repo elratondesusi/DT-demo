@@ -42,7 +42,7 @@ public class MainThreadVersion {
         abducibleContainer.addAssertions(abducibleContainer.getLoader().getAbducibles().getAxioms());
 
         abductionManager.setAbducibles(abducibleContainer);
-        abductionManager.setAdditionalSolverSettings("TODO");
+//        abductionManager.setAdditionalSolverSettings("TODO");
 
 
         // a non-thread version
