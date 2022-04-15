@@ -2,7 +2,6 @@ import abduction.api.implementation.AbducibleContainerImpl;
 import abduction.api.implementation.AbductionManagerAndAbducibleContainerFactoryImpl;
 import abduction.api.implementation.AbductionManagerImpl;
 import abductionapi.exception.CommonException;
-import common.Configuration;
 import models.Explanation;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -39,13 +38,15 @@ public class MainNonThreadVersion {
         abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getIndividuals());
         abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getRoles());
 
-        abducibleContainer.addAssertions(abducibleContainer.getLoader().getAbducibles().getAxioms(abducibleContainer));
+        // how does getAxioms work?
+//        abducibleContainer.addAssertions(abducibleContainer.getLoader().getAbducibles().getAxioms(abducibleContainer));
 
         abductionManager.setAbducibles(abducibleContainer);
 
         Set<Explanation> explanations = abductionManager.getExplanations();
+        // just for debugging and verifying nothing changes to original version od solver
         System.out.println();
-        System.out.println("je ich:" + String.valueOf(explanations.size()));
+        System.out.println("Count:" + String.valueOf(explanations.size()));
         System.out.println();
         abductionManager.show(explanations);
     }

@@ -199,28 +199,32 @@ public class AbductionManagerImpl implements AbductionManager {
     @Override
     public void run() {
         synchronized (this) {
-            ThreadTimes threadTimes = new ThreadTimes(100);
-            threadTimes.start();
-            this.setReasonerManager();
-            ISolver solver = createSolver(threadTimes);
-            List<Explanation> expl = null;
-            if (solver != null) {
-                try {
-                    synchronized(monitor) {
-                        expl = solver.solve();
-                        System.out.println();
-                        System.out.println("je ich:" + String.valueOf(expl.size()));
-                        System.out.println();
-                        show(new HashSet<Explanation>(expl));
-
-                        sendExplanation(null);
-                    }
-                } catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
-                    e.printStackTrace();
-                }
-            }
-            threadTimes.interrupt();
+            getExplanationsIncrementally();
         }
+    }
+    @Override
+    public void getExplanationsIncrementally() {
+        ThreadTimes threadTimes = new ThreadTimes(100);
+        threadTimes.start();
+        this.setReasonerManager();
+        ISolver solver = createSolver(threadTimes);
+        List<Explanation> expl = null;
+        if (solver != null) {
+            try {
+                synchronized(monitor) {
+                    expl = solver.solve();
+                    System.out.println();
+                    System.out.println("je ich:" + String.valueOf(expl.size()));
+                    System.out.println();
+                    show(new HashSet<Explanation>(expl));
+
+                    sendExplanation(null);
+                }
+            } catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
+                e.printStackTrace();
+            }
+        }
+        threadTimes.interrupt();
     }
 
     @Override
