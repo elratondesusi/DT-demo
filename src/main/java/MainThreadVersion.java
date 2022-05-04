@@ -23,30 +23,28 @@ public class MainThreadVersion {
         // Abduction API - abductionFactory, abductionManager and abducibleContainer
         AbductionManagerAndAbducibleContainerFactoryImpl abductionFactory = new AbductionManagerAndAbducibleContainerFactoryImpl();
         AbductionManagerImpl abductionManager = abductionFactory.createAbductionManager();
-        AbducibleContainerImpl abducibleContainer = abductionFactory.createAbducibleContainer(abductionManager);
+        AbducibleContainerImpl abducibleContainer = abductionFactory.createAbducibleContainer();
+        abductionManager.setAbducibles(abducibleContainer);
+
+        abductionManager.setAdditionalSolverSettings("INITIALIZE_LOADER:yes");
 
         // backgroundKnowledge
-        abductionManager.setBackgroundKnowledge(abducibleContainer.getLoader().getOntology());
+        abductionManager.setBackgroundKnowledge(abductionManager.getLoader().getOntology());
 
         // observation/s
-        abductionManager.setMultipleObservationOnInput(abducibleContainer.getLoader().isMultipleObservationOnInput());
+        abductionManager.setMultipleObservationOnInput(abductionManager.getLoader().isMultipleObservationOnInput());
         try {
-            abductionManager.setObservation(abducibleContainer.getLoader().getObservation());
+            abductionManager.setObservation(abductionManager.getLoader().getObservation());
         } catch (CommonException ex) {
             //process Exception somehow
             System.out.println("Solver exception: " + ex);
             throw new CommonException("Solver exception: ", ex);
         }
-        List<OWLClass> cc = abducibleContainer.getLoader().getAbducibles().getClasses().stream().collect(Collectors.toList());
+        List<OWLClass> cc = abductionManager.getLoader().getAbducibles().getClasses().stream().collect(Collectors.toList());
         abducibleContainer.addSymbol(cc.get(0));
-        abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getClasses());
-        abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getIndividuals());
-        abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getRoles());
-
-        // how does getAxioms work?
-        abducibleContainer.addAssertions(abducibleContainer.getLoader().getAbducibles().getAxioms(abducibleContainer));
-
-        abductionManager.setAbducibles(abducibleContainer);
+        abducibleContainer.addSymbols(abductionManager.getLoader().getAbducibles().getClasses());
+        abducibleContainer.addSymbols(abductionManager.getLoader().getAbducibles().getIndividuals());
+        abducibleContainer.addSymbols(abductionManager.getLoader().getAbducibles().getRoles());
 
         abductionManager.setAdditionalSolverSettings("BACKGROUND_KNOWLEDGE_ORIGINAL:yes" );
 

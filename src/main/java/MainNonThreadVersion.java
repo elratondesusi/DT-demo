@@ -19,29 +19,27 @@ public class MainNonThreadVersion {
         // Abduction API - abductionFactory, abductionManager and abducibleContainer
         AbductionManagerAndAbducibleContainerFactoryImpl abductionFactory = new AbductionManagerAndAbducibleContainerFactoryImpl();
         AbductionManagerImpl abductionManager = abductionFactory.createAbductionManager();
-        AbducibleContainerImpl abducibleContainer = abductionFactory.createAbducibleContainer(abductionManager);
+        AbducibleContainerImpl abducibleContainer = abductionFactory.createAbducibleContainer();
+        abductionManager.setAbducibles(abducibleContainer);
+
+        abductionManager.setAdditionalSolverSettings("INITIALIZE_LOADER:yes");
 
         // backgroundKnowledge
-        abductionManager.setBackgroundKnowledge(abducibleContainer.getLoader().getOntology());
-//        abducibleContainer.getLoader().getOntology().getOWLOntologyManager().getOWLDataFactory().getname
+        abductionManager.setBackgroundKnowledge(abductionManager.getLoader().getOntology());
+
         // observation/s
-        abductionManager.setMultipleObservationOnInput(abducibleContainer.getLoader().isMultipleObservationOnInput());
+        abductionManager.setMultipleObservationOnInput(abductionManager.getLoader().isMultipleObservationOnInput());
         try {
-            abductionManager.setObservation(abducibleContainer.getLoader().getObservation());
+            abductionManager.setObservation(abductionManager.getLoader().getObservation());
         } catch (CommonException ex) {
             throw new CommonException("Solver exception: ", ex);
         }
 
-        abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getClasses());
-        abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getIndividuals());
-        abducibleContainer.addSymbols(abducibleContainer.getLoader().getAbducibles().getRoles());
+        abducibleContainer.addSymbols(abductionManager.getLoader().getAbducibles().getClasses());
+        abducibleContainer.addSymbols(abductionManager.getLoader().getAbducibles().getIndividuals());
+        abducibleContainer.addSymbols(abductionManager.getLoader().getAbducibles().getRoles());
 
-        // how does getAxioms work?
-//        abducibleContainer.addAssertions(abducibleContainer.getLoader().getAbducibles().getAxioms(abducibleContainer));
-
-        abductionManager.setAbducibles(abducibleContainer);
-
-        abductionManager.setAdditionalSolverSettings("BACKGROUND_KNOWLEDGE_ORIGINAL:yes" );
+        abductionManager.setAdditionalSolverSettings("BACKGROUND_KNOWLEDGE_ORIGINAL:yes");
 
         Set<Explanation> explanations = abductionManager.getExplanations();
         // just for debugging and verifying nothing changes to original version od solver

@@ -1,6 +1,5 @@
 package abduction.api.implementation;
 
-import abductionapi.monitor.Monitor;
 import abductionapi.exception.AxiomObservationException;
 import abductionapi.exception.CommonException;
 import abductionapi.exception.MultiObservationException;
@@ -10,13 +9,14 @@ import algorithms.hybrid.HybridSolver;
 import models.Explanation;
 import models.Observation;
 import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLEntity;
-import org.semanticweb.owlapi.model.OWLObject;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
+import parser.ArgumentParser;
+import reasoner.ILoader;
 import reasoner.IReasonerManager;
+import reasoner.Loader;
 import reasoner.ReasonerManager;
 import reasoner.ReasonerType;
 import timer.ThreadTimes;
@@ -24,6 +24,7 @@ import timer.ThreadTimes;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 
 public class AbductionManagerImpl implements AbductionManager<Explanation, Observation, OWLEntity, OWLAxiom, AbducibleContainerImpl> {
 
@@ -42,17 +43,46 @@ public class AbductionManagerImpl implements AbductionManager<Explanation, Obser
     public static String INPUT_FILE_NAME = "";
     public static ReasonerType REASONER;
 
+    private ILoader loader;
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                     SOLVER METHODS                                                                             //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    public ILoader getLoader() {
+        return loader;
+    }
+
+    public void initializeSolverLoaderAndParser() {
+        String[] x = new String[1];
+
+        String actualPath = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/";
+        // examples
+//        x[0] = actualPath + "testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3.in";
+//        x[0] = actualPath + "testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3_noNeg.in";
+//        x[0] = actualPath + "in/input_fam_abd.txt";
+//        x[0] = actualPath + "in/mhs_mod/family.in";
+//        x[0] = "actualPath + in/input_fam.txt";
+//        x[0] = actualPath + "in/input_fam_2.txt";
+        x[0] = actualPath + "in/divideSets.in";
+
+        ArgumentParser argumentParser = new ArgumentParser();
+        argumentParser.parse(x, abducibleContainer, this);
+        loader = new Loader();
+        try {
+            loader.initialize(this);
+        } catch (Exception e) {
+            throw new CommonException("Initialization of solver's loader gone wrong.");
+        }
+    }
 
     public IReasonerManager getReasonerManager() {
         return reasonerManager;
     }
 
     private void setReasonerManager() {
-        this.reasonerManager = new ReasonerManager(abducibleContainer.getLoader());
+        this.reasonerManager = new ReasonerManager(loader);
     }
 
     private ISolver createSolver(ThreadTimes threadTimes) {
@@ -77,7 +107,7 @@ public class AbductionManagerImpl implements AbductionManager<Explanation, Obser
     }
 
     public void setBackgroundKnowledgeOriginal() {
-        backgroundKnowledgeOriginal = abducibleContainer.getLoader().getOriginalOntology();
+        backgroundKnowledgeOriginal = loader.getOriginalOntology();
     }
 
     public OWLOntology getBackgroundKnowledgeOriginal() {
@@ -177,6 +207,9 @@ public class AbductionManagerImpl implements AbductionManager<Explanation, Obser
                 break;
             case "BACKGROUND_KNOWLEDGE_ORIGINAL":
                 setBackgroundKnowledgeOriginal();
+                break;
+            case "INITIALIZE_LOADER":
+                initializeSolverLoaderAndParser();
                 break;
             default:
                 throw new CommonException("Solver does not support this setting: " + s, null);

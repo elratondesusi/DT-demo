@@ -20,11 +20,11 @@ public class CheckRules implements ICheckRules {
 
     @Override
     public boolean isConsistent(Explanation explanation) {
-        abductionManager.getReasonerManager().removeAxiomFromOntology(abductionManager.getAbducibles().getLoader().getNegObservation().getOwlAxiom());
+        abductionManager.getReasonerManager().removeAxiomFromOntology(abductionManager.getLoader().getNegObservation().getOwlAxiom());
         abductionManager.getReasonerManager().addAxiomsToOntology(explanation.getOwlAxioms());
         boolean isConsistent = abductionManager.getReasonerManager().isOntologyConsistent();
         abductionManager.getReasonerManager().resetOntology(abductionManager.getBackgroundKnowledgeOriginal().axioms());
-        abductionManager.getReasonerManager().addAxiomToOntology(abductionManager.getAbducibles().getLoader().getNegObservation().getOwlAxiom());
+        abductionManager.getReasonerManager().addAxiomToOntology(abductionManager.getLoader().getNegObservation().getOwlAxiom());
         return isConsistent;
     }
 
@@ -57,9 +57,9 @@ public class CheckRules implements ICheckRules {
 
         OWLReasoner reasoner = new OpenlletReasonerFactory().createNonBufferingReasoner(ontology);
 
-        if(abductionManager.getAbducibles().getLoader().isMultipleObservationOnInput()){
-            for(OWLAxiom obs : abductionManager.getAbducibles().getLoader().getObservation().getAxiomsInMultipleObservations()){
-                OWLAxiom negObs = AxiomManager.getComplementOfOWLAxiom(abductionManager.getAbducibles().getLoader(), obs);
+        if(abductionManager.getLoader().isMultipleObservationOnInput()){
+            for(OWLAxiom obs : abductionManager.getLoader().getObservation().getAxiomsInMultipleObservations()){
+                OWLAxiom negObs = AxiomManager.getComplementOfOWLAxiom(abductionManager.getLoader(), obs);
                 ontologyManager.addAxiom(ontology, negObs);
                 if(!reasoner.isConsistent()){
                     return false;
@@ -68,7 +68,7 @@ public class CheckRules implements ICheckRules {
             }
             return true;
         } else {
-            ontologyManager.addAxiom(ontology, abductionManager.getAbducibles().getLoader().getNegObservation().getOwlAxiom());
+            ontologyManager.addAxiom(ontology, abductionManager.getLoader().getNegObservation().getOwlAxiom());
             return reasoner.isConsistent();
         }
     }
