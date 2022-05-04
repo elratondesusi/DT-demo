@@ -49,7 +49,7 @@ public class MainThreadVersion {
 
         abductionManager.setAdditionalSolverSettings("BACKGROUND_KNOWLEDGE_ORIGINAL:yes" );
 
-        // At first the monitor is set to AbductionManager.
+        // At first the monitor is get from AbductionManager.
         monitor = abductionManager.getMonitor();
 
         Thread ct = new Thread() {
