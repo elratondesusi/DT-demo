@@ -20,7 +20,7 @@ public class MainThreadVersion {
         Logger.getRootLogger().setLevel(Level.OFF);
         BasicConfigurator.configure();
 
-        // Abduction API - abductionFactory, abductionManager and abducibleContainer
+        // DL Abduction API - abductionFactory, abductionManager and abducibleContainer
         AbductionManagerAndAbducibleContainerFactoryImpl abductionFactory = new AbductionManagerAndAbducibleContainerFactoryImpl();
         AbductionManagerImpl abductionManager = abductionFactory.createAbductionManager();
         AbducibleContainerImpl abducibleContainer = abductionFactory.createAbducibleContainer();
@@ -40,6 +40,7 @@ public class MainThreadVersion {
             System.out.println("Solver exception: " + ex);
             throw new CommonException("Solver exception: ", ex);
         }
+
         List<OWLClass> cc = abductionManager.getLoader().getAbducibles().getClasses().stream().collect(Collectors.toList());
         abducibleContainer.addSymbol(cc.get(0));
         abducibleContainer.addSymbols(abductionManager.getLoader().getAbducibles().getClasses());

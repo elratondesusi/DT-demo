@@ -4,15 +4,11 @@ import abductionapi.exception.AxiomAbducibleAssertionException;
 import abductionapi.exception.AxiomAbducibleException;
 import abductionapi.exception.AxiomAbducibleSymbolException;
 import abductionapi.container.AbducibleContainer;
-import abductionapi.exception.CommonException;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
-import parser.ArgumentParser;
-import reasoner.ILoader;
-import reasoner.Loader;
 
 import java.util.HashSet;
 import java.util.List;
@@ -82,7 +78,7 @@ public class AbducibleContainerImpl implements AbducibleContainer<OWLEntity , OW
 
     @Override
     public void addSymbols(List list) throws AxiomAbducibleSymbolException {
-        throw new CommonException("This method should not be used");
+        throw new AxiomAbducibleException("adding symbols as list");
     }
 
     @Override

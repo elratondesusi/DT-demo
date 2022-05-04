@@ -1,6 +1,5 @@
 package abduction.api.implementation;
 
-import abductionapi.container.AbducibleContainer;
 import abductionapi.factory.AbductionManagerAndAbducibleContainerFactory;
 
 public class AbductionManagerAndAbducibleContainerFactoryImpl implements AbductionManagerAndAbducibleContainerFactory<AbductionManagerImpl, AbducibleContainerImpl> {

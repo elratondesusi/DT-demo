@@ -21,6 +21,7 @@ import reasoner.ReasonerManager;
 import reasoner.ReasonerType;
 import timer.ThreadTimes;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -148,6 +149,11 @@ public class AbductionManagerImpl implements AbductionManager<Explanation, Obser
     }
 
     @Override
+    public void setBackgroundKnowledge(File file) {
+        throw new CommonException("This solver does not support adding background knowledge as a file. Please, use OWLOntology.");
+    }
+
+    @Override
     public OWLOntology getBackgroundKnowledge() {
         return backgroundKnowledge;
     }
@@ -167,7 +173,7 @@ public class AbductionManagerImpl implements AbductionManager<Explanation, Obser
 
     @Override
     public void setObservation(Set<Observation> set) throws MultiObservationException, AxiomObservationException {
-        throw new CommonException("This method should not be used.");
+        throw new CommonException("This method should not be used. Please, use method 'setObservation(Observation observation)'.");
     }
 
     @Override
@@ -241,6 +247,11 @@ public class AbductionManagerImpl implements AbductionManager<Explanation, Obser
 
     // for thread version uncomment block below
 
+    //    @Override
+//    public  void sendExplanation(Explanation explanation) {
+//
+//    }
+
     @Override
     public void run() {
         synchronized (this) {
@@ -252,10 +263,4 @@ public class AbductionManagerImpl implements AbductionManager<Explanation, Obser
     public void getExplanationsIncrementally() {
         new Thread(this, "abductionManager").start() ;
     }
-
-
-//    @Override
-//    public  void sendExplanation(Explanation explanation) {
-//
-//    }
 }
