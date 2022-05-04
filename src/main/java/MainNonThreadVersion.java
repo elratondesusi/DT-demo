@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class MainNonThreadVersion {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         Logger.getRootLogger().setLevel(Level.OFF);
         BasicConfigurator.configure();
 
@@ -22,10 +22,8 @@ public class MainNonThreadVersion {
         AbducibleContainerImpl abducibleContainer = abductionFactory.createAbducibleContainer(abductionManager);
 
         // backgroundKnowledge
-//        abductionManager.setBackgroundKnowledge(abducibleContainer.getLoader().getOriginalOntology());
         abductionManager.setBackgroundKnowledge(abducibleContainer.getLoader().getOntology());
-        abductionManager.setBackgroundKnowledgeOriginal(abducibleContainer.getLoader().getOriginalOntology());
-
+//        abducibleContainer.getLoader().getOntology().getOWLOntologyManager().getOWLDataFactory().getname
         // observation/s
         abductionManager.setMultipleObservationOnInput(abducibleContainer.getLoader().isMultipleObservationOnInput());
         try {
@@ -42,6 +40,8 @@ public class MainNonThreadVersion {
 //        abducibleContainer.addAssertions(abducibleContainer.getLoader().getAbducibles().getAxioms(abducibleContainer));
 
         abductionManager.setAbducibles(abducibleContainer);
+
+        abductionManager.setAdditionalSolverSettings("BACKGROUND_KNOWLEDGE_ORIGINAL:yes" );
 
         Set<Explanation> explanations = abductionManager.getExplanations();
         // just for debugging and verifying nothing changes to original version od solver

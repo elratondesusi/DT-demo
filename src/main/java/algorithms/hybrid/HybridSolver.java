@@ -54,8 +54,8 @@ public class HybridSolver implements ISolver {
         System.out.println("Optimalizacia QXP " + Configuration.CHECKING_MINIMALITY_BY_QXP);
         System.out.println("Optimalizacia Cached Conflicts - The Longest Conf " + Configuration.CACHED_CONFLICTS_LONGEST_CONFLICT);
         System.out.println("Optimalizacia Cached Conflicts - Median " + Configuration.CACHED_CONFLICTS_TABLE_OF_OCCURRENCE);
-        System.out.println("Roly " + abductionManager.getAbducibleContainer().areRoleAssertionsEnabled());
-        System.out.println("Negation " + abductionManager.getAbducibleContainer().areConceptComplementsEnabled());
+        System.out.println("Roly " + abductionManager.getAbducibles().areRoleAssertionsEnabled());
+        System.out.println("Negation " + abductionManager.getAbducibles().areConceptComplementsEnabled());
         System.out.println("MHS MODE " + abductionManager.MHS_MODE);
         System.out.println();
         this.threadTimes = threadTimes;
@@ -65,18 +65,18 @@ public class HybridSolver implements ISolver {
     @Override
     public List<Explanation> solve() throws OWLOntologyStorageException, OWLOntologyCreationException {
         this.ontology = this.abductionManager.getBackgroundKnowledgeOriginal();
-        this.modelExtractor = new ModelExtractor(abductionManager.getAbducibleContainer().getLoader(), abductionManager.getReasonerManager(), this);
+        this.modelExtractor = new ModelExtractor(abductionManager.getAbducibles().getLoader(), abductionManager.getReasonerManager(), this);
         this.explanationsFilter = new ExplanationsFilter(abductionManager, this);
         this.setDivider = new SetDivider(this);
         this.checkRules = new CheckRules(abductionManager);
 
-        negObservation = abductionManager.getAbducibleContainer().getLoader().getNegObservation().getOwlAxiom();
+        negObservation = abductionManager.getAbducibles().getLoader().getNegObservation().getOwlAxiom();
 
-        this.abducibles = new Abducibles(abductionManager.getAbducibleContainer().getLoader());
-        this.abducibles.setAxioms(abductionManager.getAbducibleContainer().getAssertions());
-        this.abducibles.setClasses(abductionManager.getAbducibleContainer().getAbduciblesConcepts());
-        this.abducibles.setIndividuals(abductionManager.getAbducibleContainer().getAbduciblesIndividuals());
-        this.abducibles.setRoles(abductionManager.getAbducibleContainer().getAbduciblesRoles());
+        this.abducibles = new Abducibles(abductionManager.getAbducibles().getLoader());
+        this.abducibles.setAxioms(abductionManager.getAbducibles().getAssertions());
+        this.abducibles.setClasses(abductionManager.getAbducibles().getAbduciblesConcepts());
+        this.abducibles.setIndividuals(abductionManager.getAbducibles().getAbduciblesIndividuals());
+        this.abducibles.setRoles(abductionManager.getAbducibles().getAbduciblesRoles());
 
         if (!abductionManager.getReasonerManager().isOntologyConsistent())
             return null;
@@ -94,11 +94,11 @@ public class HybridSolver implements ISolver {
         assertionsAxioms = new ArrayList<>();
         negAssertionsAxioms = new ArrayList<>();
 
-        abductionManager.getAbducibleContainer().getLoader().getOntologyManager().addAxiom(ontology, abductionManager.getAbducibleContainer().getLoader().getNegObservation().getOwlAxiom());
-        abductionManager.getReasonerManager().addAxiomToOntology(abductionManager.getAbducibleContainer().getLoader().getNegObservation().getOwlAxiom());
+        abductionManager.getAbducibles().getLoader().getOntologyManager().addAxiom(ontology, abductionManager.getAbducibles().getLoader().getNegObservation().getOwlAxiom());
+        abductionManager.getReasonerManager().addAxiomToOntology(abductionManager.getAbducibles().getLoader().getNegObservation().getOwlAxiom());
 
-        for(OWLClass owlClass : abductionManager.getAbducibleContainer().getAbduciblesConcepts()){
-            List<OWLAxiom> classAssertionAxiom = AxiomManager.createClassAssertionAxiom(abductionManager.getAbducibleContainer().getLoader(), owlClass);
+        for(OWLClass owlClass : abductionManager.getAbducibles().getAbduciblesConcepts()){
+            List<OWLAxiom> classAssertionAxiom = AxiomManager.createClassAssertionAxiom(abductionManager.getAbducibles().getLoader(), owlClass);
             for (int i = 0; i < classAssertionAxiom.size(); i++) {
                 if (i % 2 == 0) {
                     assertionsAxioms.add(classAssertionAxiom.get(i));
@@ -108,8 +108,8 @@ public class HybridSolver implements ISolver {
             }
         }
 
-        if(abductionManager.getAbducibleContainer().areRoleAssertionsEnabled()){
-            for(OWLObjectProperty objectProperty : abductionManager.getAbducibleContainer().getAbduciblesRoles()){
+        if(abductionManager.getAbducibles().areRoleAssertionsEnabled()){
+            for(OWLObjectProperty objectProperty : abductionManager.getAbducibles().getAbduciblesRoles()){
                 List<OWLAxiom> objectPropertyAssertionAxiom = AxiomManager.createObjectPropertyAssertionAxiom(abductionManager, objectProperty);
                 for (int i = 0; i < objectPropertyAssertionAxiom.size(); i++) {
                     if (i % 2 == 0) {
@@ -131,7 +131,7 @@ public class HybridSolver implements ISolver {
 
         Set<OWLAxiom> to_abd = new HashSet<>();
 
-        if(abductionManager.getAbducibleContainer().areConceptComplementsEnabled()){
+        if(abductionManager.getAbducibles().areConceptComplementsEnabled()){
             to_abd.addAll(assertionsAxioms);
             to_abd.addAll(negAssertionsAxioms);
         } else {
@@ -348,7 +348,7 @@ public class HybridSolver implements ISolver {
     }
 
     private boolean isIncorrectPath(ModelNode model, OWLAxiom child){
-        if (model.label.contains(AxiomManager.getComplementOfOWLAxiom(abductionManager.getAbducibleContainer().getLoader(), child)) ||
+        if (model.label.contains(AxiomManager.getComplementOfOWLAxiom(abductionManager.getAbducibles().getLoader(), child)) ||
                 child.equals(abductionManager.getObservation().getOwlAxiom()) ||
                 (abductionManager.isMultipleObservationOnInput() && abductionManager.getObservation().getAxiomsInMultipleObservations().contains(child))){
             return true;

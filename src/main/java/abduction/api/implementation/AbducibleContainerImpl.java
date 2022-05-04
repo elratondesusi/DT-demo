@@ -7,7 +7,9 @@ import abductionapi.exception.CommonException;
 import org.apache.commons.lang3.NotImplementedException;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
+import org.semanticweb.owlapi.model.OWLObject;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import parser.ArgumentParser;
 import reasoner.ILoader;
@@ -17,7 +19,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class AbducibleContainerImpl implements AbducibleContainer {
+//<OWLNamedIndividual, OWLAxiom>
+public class AbducibleContainerImpl implements AbducibleContainer<OWLEntity , OWLAxiom>{
+
 
     private boolean loops = true;
     //default true, ale zatial iba false
@@ -38,14 +42,14 @@ public class AbducibleContainerImpl implements AbducibleContainer {
 //        x[0] = "/home/iveta/Plocha/skola/diplomovka/MHS-MXP-algorithm/in/input_fam_abd.txt";
 
         // 1. examples - asi su ok - treba este debuggnut lebo idu trochu aj bez api
-        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3.in";
-        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3_noNeg.in";
-//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam_abd.txt";
-//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/mhs_mod/family.in";
-////        C:\Users\zuz\Documents\UNI\Praca\DEMO\DT-demo\DT-demo\in\mhs_mod\family.in
-//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam.txt";
-        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam_2.txt";
-        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/divideSets.in";
+//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3.in";
+//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3_noNeg.in";
+////        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam_abd.txt";
+////        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/mhs_mod/family.in";
+//////        C:\Users\zuz\Documents\UNI\Praca\DEMO\DT-demo\DT-demo\in\mhs_mod\family.in
+////        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam.txt";
+//        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/DT-demo/in/input_fam_2.txt";
+        x[0] = "C:/Users/zuz/Documents/UNI/Praca/DEMO-Copy/DT-demo/DT-demo/in/divideSets.in";
 
 
         // 2. example
@@ -59,6 +63,12 @@ public class AbducibleContainerImpl implements AbducibleContainer {
 
     public ILoader getLoader() {
         return loader;
+    }
+
+    private void removeSymbols() {
+        abduciblesConcepts = new HashSet<>();
+        abduciblesIndividuals = new HashSet<>();
+        abduciblesRoles = new HashSet<>();
     }
 
     @Override
@@ -92,75 +102,48 @@ public class AbducibleContainerImpl implements AbducibleContainer {
     }
 
     @Override
-    public void addSymbol(Object o) throws AxiomAbducibleSymbolException {
+    public void addSymbol(OWLEntity o) throws AxiomAbducibleSymbolException {
         if (o instanceof OWLClass) {
-            if (abduciblesConcepts == null) {
-                abduciblesConcepts =  new HashSet<>();
-            }
-//            abduciblesConcepts.add((OWLClass)o)
+            abduciblesConcepts.add((OWLClass) o);
         } else if (o instanceof OWLNamedIndividual) {
-            if (abduciblesIndividuals == null) {
-                abduciblesIndividuals =  new HashSet<>();
-            }
-//            abduciblesIndividuals
+            abduciblesIndividuals.add((OWLNamedIndividual) o);
         } else if (o instanceof OWLObjectProperty) {
-            if (abduciblesRoles == null) {
-                abduciblesRoles =  new HashSet<>();
-            }
-//            abduciblesRoles
+            abduciblesRoles.add((OWLObjectProperty) o);
+        } else {
+            throw new AxiomAbducibleSymbolException(o.toString());
         }
-
     }
-
     @Override
     public void addSymbols(Set set) throws AxiomAbducibleSymbolException {
         set.stream().forEach(e -> {
-            if (e instanceof OWLClass) {
-                abduciblesConcepts.add((OWLClass) e);
-            } else if (e instanceof OWLNamedIndividual) {
-                abduciblesIndividuals.add((OWLNamedIndividual) e);
-            } else if (e instanceof OWLObjectProperty) {
-                abduciblesRoles.add((OWLObjectProperty) e);
-            }
+            addSymbol((OWLEntity) e);
         });
-
-        System.out.println(set);
     }
 
     @Override
     public void addSymbols(List list) throws AxiomAbducibleSymbolException {
-        throw new CommonException("This method should not be used.", new NotImplementedException("This method should not be used."));
+        throw new CommonException("This method should not be used.");
     }
 
     @Override
-    public void addSymbols(Object o) throws AxiomAbducibleSymbolException {
-        throw new CommonException("This method should not be used.", new NotImplementedException("This method should not be used."));
-    }
-
-    @Override
-    public void addAssertion(Object o) throws AxiomAbducibleAssertionException {
-        throw new CommonException("This method should not be used.", new NotImplementedException("This method should not be used."));
+    public void addAssertion(OWLAxiom o) throws AxiomAbducibleAssertionException {
+        if (o instanceof OWLAxiom) {
+            assertions.add((OWLAxiom) o);
+        } else {
+            throw new AxiomAbducibleAssertionException(o.toString());
+        }
+//        removeSymbols();
     }
 
     @Override
     public void addAssertions(Set set) throws AxiomAbducibleAssertionException {
         set.stream().forEach(e -> {
-            assertions.add((OWLAxiom) e);
-//            if (e instanceof OWLAxiom) {
-//                assertions.add((OWLAxiom) e);
-//            } else {
-//                throw new AxiomAbducibleAssertionException();
-//            }
+            addAssertion((OWLAxiom) e);
         });
     }
 
     @Override
     public void addAssertions(List list) throws AxiomAbducibleAssertionException {
-        throw new CommonException("This method should not be used.", new NotImplementedException("This method should not be used."));
-    }
-
-    @Override
-    public void addAssertions(Object o) throws AxiomAbducibleAssertionException {
         throw new CommonException("This method should not be used.", new NotImplementedException("This method should not be used."));
     }
 
@@ -179,6 +162,8 @@ public class AbducibleContainerImpl implements AbducibleContainer {
         return conceptComplements;
     }
 
+
+
     public Set<OWLClass> getAbduciblesConcepts() {
         return abduciblesConcepts;
     }
@@ -194,4 +179,5 @@ public class AbducibleContainerImpl implements AbducibleContainer {
     public Set<OWLAxiom> getAssertions() {
         return assertions;
     }
+
 }

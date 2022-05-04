@@ -153,7 +153,7 @@ public class ExplanationsFilter {
     }
 
     private List<Explanation> getConsistentExplanations() throws OWLOntologyStorageException {
-        abductionManager.getAbducibleContainer().getLoader().getOntologyManager().removeAxiom(hybridSolver.ontology, abductionManager.getAbducibleContainer().getLoader().getNegObservation().getOwlAxiom());
+        abductionManager.getAbducibles().getLoader().getOntologyManager().removeAxiom(hybridSolver.ontology, abductionManager.getAbducibles().getLoader().getNegObservation().getOwlAxiom());
 
         /*pridane kvoli tomu, ze vzdy PRVE vysvetlenie pri pouziti hermitu odignorovalo*/
         abductionManager.getReasonerManager().resetOntology(hybridSolver.ontology.axioms());
