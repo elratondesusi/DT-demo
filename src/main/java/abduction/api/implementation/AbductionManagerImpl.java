@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public class AbductionManagerImpl implements AbductionManager<Explanation, Observation, OWLEntity, OWLAxiom, AbducibleContainerImpl> {
+public class AbductionManagerImpl implements AbductionManager<OWLOntology, Explanation, Observation, OWLEntity, OWLAxiom, AbducibleContainerImpl> {
 
     private OWLOntology backgroundKnowledge;
     private OWLOntology backgroundKnowledgeOriginal;
@@ -151,11 +151,6 @@ public class AbductionManagerImpl implements AbductionManager<Explanation, Obser
     }
 
     @Override
-    public void setBackgroundKnowledge(File file) {
-        throw new CommonException("This solver does not support adding background knowledge as a file. Please, use OWLOntology.");
-    }
-
-    @Override
     public OWLOntology getBackgroundKnowledge() {
         return backgroundKnowledge;
     }
@@ -247,11 +242,11 @@ public class AbductionManagerImpl implements AbductionManager<Explanation, Obser
         return new HashSet<Explanation>(expl);
     }
 
-    @Override
-    public  void sendExplanation(Explanation explanation) {
-        // for non-thread version needs to be overridden
+    // uncomment this method in non-thread versions
+//    @Override
+//    public  void sendExplanation(Explanation explanation) {
 //        throw new ThreadVersionException();
-    }
+//    }
 
     @Override
     public void run() {
