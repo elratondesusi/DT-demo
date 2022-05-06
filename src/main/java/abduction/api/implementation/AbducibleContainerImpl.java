@@ -18,7 +18,7 @@ import java.util.Set;
 public class AbducibleContainerImpl implements AbducibleContainer<OWLEntity , OWLAxiom>{
 
     private boolean loops = true;
-    //by default should be true, but for now just false
+    //by default should be true, but for now just false (comment from MHS-MXP implementation)
     private boolean roleAssertions = false;
     private boolean conceptComplements = true;
 
@@ -110,7 +110,6 @@ public class AbducibleContainerImpl implements AbducibleContainer<OWLEntity , OW
     public boolean areConceptComplementsEnabled() {
         return conceptComplements;
     }
-
 
     public Set<OWLClass> getAbduciblesConcepts() {
         return abduciblesConcepts;

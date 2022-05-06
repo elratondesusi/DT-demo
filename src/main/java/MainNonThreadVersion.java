@@ -42,7 +42,7 @@ public class MainNonThreadVersion {
         abductionManager.setAdditionalSolverSettings("BACKGROUND_KNOWLEDGE_ORIGINAL:yes");
 
         Set<Explanation> explanations = abductionManager.getExplanations();
-        // just for debugging and verifying nothing changes to original version od solver
+        // info just for debugging
         System.out.println();
         System.out.println("Count:" + String.valueOf(explanations.size()));
         System.out.println();

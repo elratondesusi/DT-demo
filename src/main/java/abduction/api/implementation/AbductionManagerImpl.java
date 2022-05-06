@@ -3,6 +3,7 @@ package abduction.api.implementation;
 import abductionapi.exception.AxiomObservationException;
 import abductionapi.exception.CommonException;
 import abductionapi.exception.MultiObservationException;
+import abductionapi.exception.ThreadVersionException;
 import abductionapi.manager.AbductionManager;
 import algorithms.ISolver;
 import algorithms.hybrid.HybridSolver;
@@ -58,6 +59,7 @@ public class AbductionManagerImpl implements AbductionManager<Explanation, Obser
     public void initializeSolverLoaderAndParser() {
         String[] x = new String[1];
 
+//        add your path
         String actualPath = "C:/Users/zuz/Documents/UNI/Praca/DEMO/DT-demo/";
         // examples
 //        x[0] = actualPath + "testingFiles/testingFiles0/mhs-mxp/lubm-0_2_3.in";
@@ -245,12 +247,11 @@ public class AbductionManagerImpl implements AbductionManager<Explanation, Obser
         return new HashSet<Explanation>(expl);
     }
 
-    // for thread version uncomment block below
-
-    //    @Override
-//    public  void sendExplanation(Explanation explanation) {
-//
-//    }
+    @Override
+    public  void sendExplanation(Explanation explanation) {
+        // for non-thread version needs to be overridden
+//        throw new ThreadVersionException();
+    }
 
     @Override
     public void run() {
